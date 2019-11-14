@@ -1,7 +1,7 @@
 from pyv4l2.v4l2 cimport *
 from libc.errno cimport errno, EINTR, EINVAL
-from libc.string cimport memset, strerror
-from libc.stdlib cimport malloc, calloc
+from libc.string cimport memset, memcpy, strerror
+from libc.stdlib cimport malloc, calloc, free
 from posix.select cimport fd_set, timeval, FD_ZERO, FD_SET, select
 from posix.fcntl cimport O_RDWR
 from posix.mman cimport PROT_READ, PROT_WRITE, MAP_SHARED
@@ -18,12 +18,18 @@ cdef class Camera:
 
     cdef v4l2_format fmt
     cdef v4l2_format dest_fmt
+    cdef v4l2_format frame_fmt
 
     cdef public unsigned int width
     cdef public unsigned int height
 
     cdef unsigned int conv_dest_size
     cdef unsigned char *conv_dest
+    cdef unsigned int frame_dest_size
+    cdef unsigned char *frame_dest
+
+    cdef unsigned int frame_size
+    cdef unsigned char *frame
 
     cdef v4l2_requestbuffers buf_req
     cdef v4l2_buffer buf
@@ -31,9 +37,10 @@ cdef class Camera:
 
     cdef timeval tv
     cdef v4lconvert_data *convert_data
+    cdef v4lconvert_data *frame_data
 
     def __cinit__(self, device_path,
-                  unsigned int width=0, unsigned int height=0):
+                  unsigned int width=1280, unsigned int height=480):
         device_path = device_path.encode()
 
         self.fd = v4l2_open(device_path, O_RDWR)
@@ -46,39 +53,31 @@ cdef class Camera:
         if -1 == xioctl(self.fd, VIDIOC_G_FMT, &self.fmt):
             raise CameraError('Getting format failed')
 
-        print("DOES THIS WORK:", width, height)
-        print("YEETLUL")
-
-        if width and height:
-            self.fmt.fmt.pix.width = width
-            self.fmt.fmt.pix.height = height
-            print(self.fmt.fmt.pix.width)
+        self.fmt.fmt.pix.width = width
+        self.fmt.fmt.pix.height = height
         self.fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY
         self.fmt.fmt.pix.field = V4L2_FIELD_ANY
 
         if -1 == xioctl(self.fd, VIDIOC_S_FMT, &self.fmt):
             raise CameraError('Setting format failed')
-        print(self.fmt.fmt.pix.width)
-        #print(self.width)
-        #print(self.height)
+
         self.width = width
         self.height = height
-        #self.width = 1280
-        #self.height = 480
-        print(self.width)
-        print(self.height)
 
-        self.dest_fmt.type = self.fmt.type
-        self.dest_fmt.fmt.pix.width = self.fmt.fmt.pix.width
-        self.dest_fmt.fmt.pix.height = self.fmt.fmt.pix.height
-        self.dest_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY
-        self.dest_fmt.fmt.pix.field = V4L2_FIELD_ANY
+        self.frame_size = width * height
+        self.frame = <unsigned char *>malloc(self.frame_size)
 
-        self.conv_dest_size = self.width * self.height
-        self.conv_dest = <unsigned char *>malloc(self.conv_dest_size)
-        if self.conv_dest == NULL:
+        self.frame_fmt.type = self.fmt.type
+        self.frame_fmt.fmt.pix.width = self.fmt.fmt.pix.width
+        self.frame_fmt.fmt.pix.height = self.fmt.fmt.pix.height
+        self.frame_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY
+        self.frame_fmt.fmt.pix.field = V4L2_FIELD_ANY
+
+        self.frame_dest_size = self.width * self.height
+        self.frame_dest = <unsigned char *>malloc(self.conv_dest_size)
+        if self.frame_dest == NULL:
             raise CameraError('Allocating memory for converted data failed')
-        self.convert_data = v4lconvert_create(self.fd)
+        self.frame_data = v4lconvert_create(self.fd)
 
         memset(&self.buf_req, 0, sizeof(self.buf_req))
         self.buf_req.count = 4
@@ -313,26 +312,28 @@ cdef class Camera:
         if -1 == xioctl(self.fd, VIDIOC_DQBUF, &self.buf):
             raise CameraError('Retrieving frame failed')
 
-        #print(self.buf.bytesused)
-
-        
+        """
         if -1 == v4lconvert_convert(
-                self.convert_data,
-                &self.fmt, &self.dest_fmt,
+                self.frame_data,
+                &self.fmt, &self.frame_fmt,
                 <unsigned char *>self.buffers[self.buf.index].start,
                 self.buf.bytesused,
-                self.conv_dest,
-                self.conv_dest_size
+                self.frame_dest,
+                self.frame_dest_size
         ):
             raise CameraError('Conversion failed')
-        
-        self.conv_dest = <unsigned char *>self.buffers[self.buf.index].start
+        """
+        #lul = <unsigned char *>malloc(self.conv_dest_size)
+        #self.frame_dest = <unsigned char *>self.buffers[self.buf.index].start
+        self.frame = <unsigned char *>self.buffers[self.buf.index].start
         
         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):
             raise CameraError('Exchanging buffer with device failed')
 
-        h = np.frombuffer(self.conv_dest[:self.conv_dest_size], dtype=np.uint8).reshape((480, 1280))
+        #h = np.frombuffer(self.frame_dest[:self.frame_dest_size], dtype=np.uint8).reshape((480, 1280))
+        h = np.frombuffer(self.frame[:self.frame_size], dtype=np.uint8).reshape((480, 1280))
         return h
+    
 
     def close(self):
         xioctl(self.fd, VIDIOC_STREAMOFF, &self.buf.type)
