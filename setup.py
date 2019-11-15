@@ -3,7 +3,7 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy
-# directives = {'linetrace': False, 'language_level': 3}
+
 extensions = [
     Extension('pyv4l2.camera', ['pyv4l2/camera.pyx'],
         include_dirs=[numpy.get_include(), 'src'],

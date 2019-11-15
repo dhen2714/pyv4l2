@@ -615,7 +615,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <errno.h>
 #include "linux/videodev2.h"
 #include "libv4l2.h"
-#include "libv4lconvert.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -830,7 +829,7 @@ static const char *__pyx_f[] = {
 /*--- Type declarations ---*/
 struct __pyx_t_6pyv4l2_4v4l2_buffer_info;
 
-/* "pyv4l2/v4l2.pxd":173
+/* "pyv4l2/v4l2.pxd":162
  *     return r
  * 
  * cdef struct buffer_info:             # <<<<<<<<<<<<<<
@@ -2134,8 +2133,8 @@ static PyObject *__pyx_pf_6pyv4l2_8controls_13CameraControl_12is_write_only(CYTH
   return __pyx_r;
 }
 
-/* "pyv4l2/v4l2.pxd":166
- *                            unsigned char *dest, int dest_size)
+/* "pyv4l2/v4l2.pxd":155
+ *     int v4l2_munmap(void *_start, size_t length)
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):             # <<<<<<<<<<<<<<
  *     cdef int r = v4l2_ioctl(fd, request, arg)
@@ -2150,7 +2149,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
   int __pyx_t_2;
   __Pyx_RefNannySetupContext("xioctl", 0);
 
-  /* "pyv4l2/v4l2.pxd":167
+  /* "pyv4l2/v4l2.pxd":156
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):
  *     cdef int r = v4l2_ioctl(fd, request, arg)             # <<<<<<<<<<<<<<
@@ -2159,7 +2158,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
  */
   __pyx_v_r = v4l2_ioctl(__pyx_v_fd, __pyx_v_request, __pyx_v_arg);
 
-  /* "pyv4l2/v4l2.pxd":168
+  /* "pyv4l2/v4l2.pxd":157
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):
  *     cdef int r = v4l2_ioctl(fd, request, arg)
  *     while -1 == r and EINTR == errno:             # <<<<<<<<<<<<<<
@@ -2178,7 +2177,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
     __pyx_L5_bool_binop_done:;
     if (!__pyx_t_1) break;
 
-    /* "pyv4l2/v4l2.pxd":169
+    /* "pyv4l2/v4l2.pxd":158
  *     cdef int r = v4l2_ioctl(fd, request, arg)
  *     while -1 == r and EINTR == errno:
  *         r = v4l2_ioctl(fd, request, arg)             # <<<<<<<<<<<<<<
@@ -2188,7 +2187,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
     __pyx_v_r = v4l2_ioctl(__pyx_v_fd, __pyx_v_request, __pyx_v_arg);
   }
 
-  /* "pyv4l2/v4l2.pxd":171
+  /* "pyv4l2/v4l2.pxd":160
  *         r = v4l2_ioctl(fd, request, arg)
  * 
  *     return r             # <<<<<<<<<<<<<<
@@ -2198,8 +2197,8 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
   __pyx_r = __pyx_v_r;
   goto __pyx_L0;
 
-  /* "pyv4l2/v4l2.pxd":166
- *                            unsigned char *dest, int dest_size)
+  /* "pyv4l2/v4l2.pxd":155
+ *     int v4l2_munmap(void *_start, size_t length)
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):             # <<<<<<<<<<<<<<
  *     cdef int r = v4l2_ioctl(fd, request, arg)
@@ -3403,8 +3402,8 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pyv4l2/v4l2.pxd":166
- *                            unsigned char *dest, int dest_size)
+  /* "pyv4l2/v4l2.pxd":155
+ *     int v4l2_munmap(void *_start, size_t length)
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):             # <<<<<<<<<<<<<<
  *     cdef int r = v4l2_ioctl(fd, request, arg)

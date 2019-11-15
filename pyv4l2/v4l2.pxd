@@ -143,9 +143,6 @@ cdef extern from 'libv4l2.h':
     enum: V4L2_MEMORY_MMAP
     enum: V4L2_FIELD_ANY
 
-    cdef struct v4lconvert_data:
-        pass
-
     int v4l2_open(const char *device_name, int flags)
     int v4l2_close(int fd)
 
@@ -154,14 +151,6 @@ cdef extern from 'libv4l2.h':
     void *v4l2_mmap(void *start, size_t length, int prot, int flags, int fd,
                     __s64 offset)
     int v4l2_munmap(void *_start, size_t length)
-
-cdef extern from 'libv4lconvert.h':
-    v4lconvert_data *v4lconvert_create(int fd)
-    int v4lconvert_convert(v4lconvert_data *data,
-                           const v4l2_format *src_fmt,
-                           const v4l2_format *dest_fmt,
-                           unsigned char *src, int src_size,
-                           unsigned char *dest, int dest_size)
 
 cdef inline int xioctl(int fd, unsigned long int request, void *arg):
     cdef int r = v4l2_ioctl(fd, request, arg)
