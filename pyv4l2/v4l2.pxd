@@ -162,3 +162,17 @@ cdef inline int xioctl(int fd, unsigned long int request, void *arg):
 cdef struct buffer_info:
     void *start
     size_t length
+
+cdef extern from 'sys/ioctl.h':
+    int ioctl(int fd, unsigned long request, void *argp)
+
+cdef extern from 'linux/uvcvideo.h':
+    #enum: UVC_SET_CUR
+    enum: UVCIOC_CTRL_QUERY
+
+    cdef struct uvc_xu_control_query:
+        __u8 unit
+        __u8 selector
+        __u8 query
+        __u16 size
+        __u8 *data

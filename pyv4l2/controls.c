@@ -615,6 +615,8 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <errno.h>
 #include "linux/videodev2.h"
 #include "libv4l2.h"
+#include "sys/ioctl.h"
+#include "linux/uvcvideo.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */

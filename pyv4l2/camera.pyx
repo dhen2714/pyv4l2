@@ -5,12 +5,27 @@ from libc.stdlib cimport malloc, calloc, free
 from posix.select cimport fd_set, timeval, FD_ZERO, FD_SET, select
 from posix.fcntl cimport O_RDWR
 from posix.mman cimport PROT_READ, PROT_WRITE, MAP_SHARED
+from posix.unistd cimport sleep
 
 from pyv4l2.controls import CameraControl
 from pyv4l2.exceptions import CameraError
 
 import numpy as np
 cimport numpy as np
+
+cdef enum: UVC_SET_CUR = 0x01
+cdef enum: UVC_GET_CUR = 0x81
+
+cdef __u8 query_value[384]
+cdef __u8 i2c_flag = 1
+
+cdef uvc_xu_control_query xu_query = [4, 2, UVC_SET_CUR, 384, query_value]
+
+cdef void SAFE_IOCTL(int x):
+    if x < 0:
+        raise CameraError('ioctl error: {}    {}'.format(
+            errno, strerror(errno).decode())
+        )
 
 cdef class Camera:
     cdef int fd
@@ -249,6 +264,53 @@ cdef class Camera:
 
         frame = np.frombuffer(self.frame_data[:self.frame_size], dtype=np.uint8)
         return frame.reshape((self.height, self.width))
+
+    cpdef __u8 read_ISPreg(self, __u32 isp_add):
+        xu_query.query = UVC_SET_CUR # UVC_SET_CUR
+
+        query_value[0] = 0x51
+        query_value[1] = 0xa2
+        query_value[2] = 0x6c
+        query_value[3] = 0x04
+        query_value[4] = 0x01
+        query_value[5] = isp_add>>24
+        query_value[6] = isp_add>>16
+        query_value[7] = isp_add>>8
+        query_value[8] = isp_add&0xff
+        query_value[9] = 0x90
+        query_value[10] = 0x01
+        query_value[11] = 0x00
+        query_value[12] = 0x01
+
+        ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query)
+        sleep(1)
+
+        xu_query.query = UVC_GET_CUR # UVC_GET_CUR
+        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+
+        return query_value[17]
+
+    cpdef void write_ISPreg(self, __u32 isp_add, __u8 isp_val):
+        xu_query.query = UVC_SET_CUR # UVC_SET_CUR
+        query_value[0] = 0x50;
+        query_value[1] = 0xa2;
+        query_value[2] = 0x6c;
+        query_value[3] = 0x04;
+        query_value[4] = 0x01;
+        #register address
+        query_value[5] = isp_add>>24;
+        query_value[6] = isp_add>>16;
+        query_value[7] = isp_add>>8;
+        query_value[8] = isp_add&0xff;
+
+        query_value[9] = 0x90;
+        query_value[10] = 0x01;
+        query_value[11] = 0x00;
+        query_value[12] = 0x01;
+
+        query_value[16] = isp_val;
+
+        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query));
     
 
     def close(self):
