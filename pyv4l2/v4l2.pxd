@@ -1,4 +1,5 @@
 from libc.errno cimport errno, EINTR
+from posix.select cimport timeval
 
 cdef extern from 'linux/videodev2.h':
     ctypedef unsigned char           __u8
@@ -104,6 +105,7 @@ cdef extern from 'linux/videodev2.h':
         __u32 memory
         __u32 length
         __u32 bytesused
+        timeval timestamp
 
         __v4l2_buffer_m m
 

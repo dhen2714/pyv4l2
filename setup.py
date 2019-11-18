@@ -17,6 +17,7 @@ extensions = [
 setup(
     name='pyv4l2',
     #version=__version__,
+    packages=['pyv4l2'],
     description='libv4l2 based frame grabber for OV580-OV7251',
     license='GNU Lesser General Public License v3 (LGPLv3)',
     ext_modules=cythonize(extensions, compiler_directives={'language_level' : '3'}),

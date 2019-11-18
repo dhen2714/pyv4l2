@@ -617,16 +617,16 @@ static CYTHON_INLINE float __PYX_NAN() {
 #define __PYX_HAVE_API__pyv4l2__camera
 /* Early includes */
 #include <errno.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <sys/select.h>
 #include "linux/videodev2.h"
 #include "libv4l2.h"
 #include "sys/ioctl.h"
 #include "linux/uvcvideo.h"
 #include <string.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <sys/select.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -1086,7 +1086,7 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 struct __pyx_obj_6pyv4l2_6camera_Camera;
 struct __pyx_t_6pyv4l2_4v4l2_buffer_info;
 
-/* "pyv4l2/v4l2.pxd":162
+/* "pyv4l2/v4l2.pxd":164
  *     return r
  * 
  * cdef struct buffer_info:             # <<<<<<<<<<<<<<
@@ -1178,6 +1178,7 @@ struct __pyx_obj_6pyv4l2_6camera_Camera {
   struct v4l2_buffer buf;
   struct __pyx_t_6pyv4l2_4v4l2_buffer_info *buffers;
   struct timeval tv;
+  unsigned long timestamp;
 };
 
 
@@ -1188,9 +1189,15 @@ struct __pyx_vtabstruct_6pyv4l2_6camera_Camera {
   PyObject *(*get_controls)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch);
   void (*set_control_value)(struct __pyx_obj_6pyv4l2_6camera_Camera *, PyObject *, PyObject *, int __pyx_skip_dispatch);
   int (*get_control_value)(struct __pyx_obj_6pyv4l2_6camera_Camera *, PyObject *, int __pyx_skip_dispatch);
-  PyArrayObject *(*get_frame)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch);
+  PyArrayObject *(*_get_frame)(struct __pyx_obj_6pyv4l2_6camera_Camera *);
   __u8 (*read_ISPreg)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u32, int __pyx_skip_dispatch);
   void (*write_ISPreg)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u32, __u8, int __pyx_skip_dispatch);
+  __u8 (*read_sensor_reg)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u16, __u8);
+  void (*write_sensor_reg)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u16, __u8, __u8);
+  __u8 (*get_exposure)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch);
+  void (*set_exposure)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u8, int __pyx_skip_dispatch);
+  void (*gain_off)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch);
+  __u8 (*get_gain)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *__pyx_vtabptr_6pyv4l2_6camera_Camera;
 static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(struct __pyx_obj_6pyv4l2_6camera_Camera *);
@@ -1604,6 +1611,9 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__v4l2_ctrl_type(enum v4l2_c
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value);
 
 /* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_long(unsigned long value);
+
+/* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From___u8(__u8 value);
 
 /* RealImag.proto */
@@ -1749,18 +1759,17 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
 static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, PyObject *__pyx_v_control_id, PyObject *__pyx_v_value, int __pyx_skip_dispatch); /* proto*/
 static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, PyObject *__pyx_v_control_id, int __pyx_skip_dispatch); /* proto*/
-static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera__get_frame(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto*/
 static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u32 __pyx_v_isp_add, int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u32 __pyx_v_isp_add, __u8 __pyx_v_isp_val, int __pyx_skip_dispatch); /* proto*/
+static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_sensor_reg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u16 __pyx_v_sensor_add, __u8 __pyx_v_i2c); /* proto*/
+static void __pyx_f_6pyv4l2_6camera_6Camera_write_sensor_reg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u16 __pyx_v_sensor_add, __u8 __pyx_v_sensor_val, __u8 __pyx_v_i2c); /* proto*/
+static __u8 __pyx_f_6pyv4l2_6camera_6Camera_get_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_6pyv4l2_6camera_6Camera_set_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u8 __pyx_v_exposure, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_6pyv4l2_6camera_6Camera_gain_off(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static __u8 __pyx_f_6pyv4l2_6camera_6Camera_get_gain(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 
 /* Module declarations from 'libc.errno' */
-
-/* Module declarations from 'pyv4l2.v4l2' */
-static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int, unsigned long, void *); /*proto*/
-
-/* Module declarations from 'libc.string' */
-
-/* Module declarations from 'libc.stdlib' */
 
 /* Module declarations from 'posix.types' */
 
@@ -1769,6 +1778,13 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int, unsigned long, void *
 /* Module declarations from 'posix.time' */
 
 /* Module declarations from 'posix.select' */
+
+/* Module declarations from 'pyv4l2.v4l2' */
+static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int, unsigned long, void *); /*proto*/
+
+/* Module declarations from 'libc.string' */
+
+/* Module declarations from 'libc.stdlib' */
 
 /* Module declarations from 'posix.fcntl' */
 
@@ -1842,10 +1858,11 @@ static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_isp_add[] = "isp_add";
 static const char __pyx_k_isp_val[] = "isp_val";
 static const char __pyx_k_reshape[] = "reshape";
+static const char __pyx_k_gain_off[] = "gain_off";
+static const char __pyx_k_get_gain[] = "get_gain";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
-static const char __pyx_k_get_frame[] = "get_frame";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_control_id[] = "control_id";
@@ -1859,6 +1876,8 @@ static const char __pyx_k_ioctl_error[] = "ioctl error: {}    {}";
 static const char __pyx_k_read_ISPreg[] = "read_ISPreg";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_get_controls[] = "get_controls";
+static const char __pyx_k_get_exposure[] = "get_exposure";
+static const char __pyx_k_set_exposure[] = "set_exposure";
 static const char __pyx_k_write_ISPreg[] = "write_ISPreg";
 static const char __pyx_k_CameraControl[] = "CameraControl";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
@@ -1927,9 +1946,11 @@ static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_encode;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_frombuffer;
+static PyObject *__pyx_n_s_gain_off;
 static PyObject *__pyx_n_s_get_control_value;
 static PyObject *__pyx_n_s_get_controls;
-static PyObject *__pyx_n_s_get_frame;
+static PyObject *__pyx_n_s_get_exposure;
+static PyObject *__pyx_n_s_get_gain;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_height;
 static PyObject *__pyx_n_s_import;
@@ -1956,6 +1977,7 @@ static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_n_s_reshape;
 static PyObject *__pyx_n_s_set_control_value;
+static PyObject *__pyx_n_s_set_exposure;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_start;
@@ -1973,13 +1995,17 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_6get_control_value(struct __py
 static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_8get_frame(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_10read_ISPreg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u32 __pyx_v_isp_add); /* proto */
 static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_12write_ISPreg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u32 __pyx_v_isp_add, __u8 __pyx_v_isp_val); /* proto */
-static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14close(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14get_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_16set_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u8 __pyx_v_exposure); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_18gain_off(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_20get_gain(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_22close(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_5width___get__(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
 static int __pyx_pf_6pyv4l2_6camera_6Camera_5width_2__set__(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_6height___get__(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
 static int __pyx_pf_6pyv4l2_6camera_6Camera_6height_2__set__(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_16__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_18__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_24__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_26__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_6pyv4l2_6camera_Camera(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2155,8 +2181,8 @@ static void __pyx_f_6pyv4l2_6camera_SAFE_IOCTL(int __pyx_v_x) {
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pyv4l2/camera.pyx":49
- *     cdef timeval tv
+/* "pyv4l2/camera.pyx":50
+ *     cdef unsigned long timestamp
  * 
  *     def __cinit__(self, device_path,             # <<<<<<<<<<<<<<
  *                   unsigned int width=1280, unsigned int height=480):
@@ -2207,7 +2233,7 @@ static int __pyx_pw_6pyv4l2_6camera_6Camera_1__cinit__(PyObject *__pyx_v_self, P
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 49, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 50, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2222,19 +2248,19 @@ static int __pyx_pw_6pyv4l2_6camera_6Camera_1__cinit__(PyObject *__pyx_v_self, P
     }
     __pyx_v_device_path = values[0];
     if (values[1]) {
-      __pyx_v_width = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_width == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L3_error)
+      __pyx_v_width = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_width == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
     } else {
       __pyx_v_width = ((unsigned int)0x500);
     }
     if (values[2]) {
-      __pyx_v_height = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_height == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L3_error)
+      __pyx_v_height = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_height == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
     } else {
       __pyx_v_height = ((unsigned int)0x1E0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 49, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 50, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pyv4l2.camera.Camera.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2261,14 +2287,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __Pyx_RefNannySetupContext("__cinit__", 0);
   __Pyx_INCREF(__pyx_v_device_path);
 
-  /* "pyv4l2/camera.pyx":51
+  /* "pyv4l2/camera.pyx":52
  *     def __cinit__(self, device_path,
  *                   unsigned int width=1280, unsigned int height=480):
  *         device_path = device_path.encode()             # <<<<<<<<<<<<<<
  * 
  *         self.fd = v4l2_open(device_path, O_RDWR)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_device_path, __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_device_path, __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2282,23 +2308,23 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF_SET(__pyx_v_device_path, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyv4l2/camera.pyx":53
+  /* "pyv4l2/camera.pyx":54
  *         device_path = device_path.encode()
  * 
  *         self.fd = v4l2_open(device_path, O_RDWR)             # <<<<<<<<<<<<<<
  *         if -1 == self.fd:
  *             raise CameraError('Error opening device {}'.format(device_path))
  */
-  __pyx_t_4 = __Pyx_PyObject_AsString(__pyx_v_device_path); if (unlikely((!__pyx_t_4) && PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_AsString(__pyx_v_device_path); if (unlikely((!__pyx_t_4) && PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L1_error)
   __pyx_v_self->fd = v4l2_open(__pyx_t_4, O_RDWR);
 
-  /* "pyv4l2/camera.pyx":54
+  /* "pyv4l2/camera.pyx":55
  * 
  *         self.fd = v4l2_open(device_path, O_RDWR)
  *         if -1 == self.fd:             # <<<<<<<<<<<<<<
@@ -2308,16 +2334,16 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_t_5 = ((-1L == __pyx_v_self->fd) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pyv4l2/camera.pyx":55
+    /* "pyv4l2/camera.pyx":56
  *         self.fd = v4l2_open(device_path, O_RDWR)
  *         if -1 == self.fd:
  *             raise CameraError('Error opening device {}'.format(device_path))             # <<<<<<<<<<<<<<
  * 
  *         memset(&self.fmt, 0, sizeof(self.fmt))
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_Error_opening_device, __pyx_n_s_format); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 55, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_Error_opening_device, __pyx_n_s_format); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 56, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_7 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
@@ -2331,7 +2357,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     }
     __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_v_device_path) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_device_path);
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 55, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 56, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_6 = NULL;
@@ -2347,14 +2373,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_6, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 55, __pyx_L1_error)
+    __PYX_ERR(0, 56, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":54
+    /* "pyv4l2/camera.pyx":55
  * 
  *         self.fd = v4l2_open(device_path, O_RDWR)
  *         if -1 == self.fd:             # <<<<<<<<<<<<<<
@@ -2363,7 +2389,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":57
+  /* "pyv4l2/camera.pyx":58
  *             raise CameraError('Error opening device {}'.format(device_path))
  * 
  *         memset(&self.fmt, 0, sizeof(self.fmt))             # <<<<<<<<<<<<<<
@@ -2372,7 +2398,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   (void)(memset((&__pyx_v_self->fmt), 0, (sizeof(__pyx_v_self->fmt))));
 
-  /* "pyv4l2/camera.pyx":58
+  /* "pyv4l2/camera.pyx":59
  * 
  *         memset(&self.fmt, 0, sizeof(self.fmt))
  *         self.fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE             # <<<<<<<<<<<<<<
@@ -2381,7 +2407,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-  /* "pyv4l2/camera.pyx":60
+  /* "pyv4l2/camera.pyx":61
  *         self.fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_G_FMT, &self.fmt):             # <<<<<<<<<<<<<<
@@ -2391,14 +2417,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_t_5 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_G_FMT, (&__pyx_v_self->fmt))) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pyv4l2/camera.pyx":61
+    /* "pyv4l2/camera.pyx":62
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_G_FMT, &self.fmt):
  *             raise CameraError('Getting format failed')             # <<<<<<<<<<<<<<
  * 
  *         self.fmt.fmt.pix.width = width
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2412,14 +2438,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     }
     __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Getting_format_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Getting_format_failed);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 61, __pyx_L1_error)
+    __PYX_ERR(0, 62, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":60
+    /* "pyv4l2/camera.pyx":61
  *         self.fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_G_FMT, &self.fmt):             # <<<<<<<<<<<<<<
@@ -2428,7 +2454,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":63
+  /* "pyv4l2/camera.pyx":64
  *             raise CameraError('Getting format failed')
  * 
  *         self.fmt.fmt.pix.width = width             # <<<<<<<<<<<<<<
@@ -2437,7 +2463,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->fmt.fmt.pix.width = __pyx_v_width;
 
-  /* "pyv4l2/camera.pyx":64
+  /* "pyv4l2/camera.pyx":65
  * 
  *         self.fmt.fmt.pix.width = width
  *         self.fmt.fmt.pix.height = height             # <<<<<<<<<<<<<<
@@ -2446,7 +2472,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->fmt.fmt.pix.height = __pyx_v_height;
 
-  /* "pyv4l2/camera.pyx":65
+  /* "pyv4l2/camera.pyx":66
  *         self.fmt.fmt.pix.width = width
  *         self.fmt.fmt.pix.height = height
  *         self.fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY             # <<<<<<<<<<<<<<
@@ -2455,7 +2481,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
 
-  /* "pyv4l2/camera.pyx":66
+  /* "pyv4l2/camera.pyx":67
  *         self.fmt.fmt.pix.height = height
  *         self.fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY
  *         self.fmt.fmt.pix.field = V4L2_FIELD_ANY             # <<<<<<<<<<<<<<
@@ -2464,7 +2490,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
-  /* "pyv4l2/camera.pyx":68
+  /* "pyv4l2/camera.pyx":69
  *         self.fmt.fmt.pix.field = V4L2_FIELD_ANY
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_S_FMT, &self.fmt):             # <<<<<<<<<<<<<<
@@ -2474,14 +2500,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_t_5 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_S_FMT, (&__pyx_v_self->fmt))) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pyv4l2/camera.pyx":69
+    /* "pyv4l2/camera.pyx":70
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_S_FMT, &self.fmt):
  *             raise CameraError('Setting format failed')             # <<<<<<<<<<<<<<
  * 
  *         self.width = width
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2495,14 +2521,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     }
     __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Setting_format_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Setting_format_failed);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 69, __pyx_L1_error)
+    __PYX_ERR(0, 70, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":68
+    /* "pyv4l2/camera.pyx":69
  *         self.fmt.fmt.pix.field = V4L2_FIELD_ANY
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_S_FMT, &self.fmt):             # <<<<<<<<<<<<<<
@@ -2511,7 +2537,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":71
+  /* "pyv4l2/camera.pyx":72
  *             raise CameraError('Setting format failed')
  * 
  *         self.width = width             # <<<<<<<<<<<<<<
@@ -2520,7 +2546,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->width = __pyx_v_width;
 
-  /* "pyv4l2/camera.pyx":72
+  /* "pyv4l2/camera.pyx":73
  * 
  *         self.width = width
  *         self.height = height             # <<<<<<<<<<<<<<
@@ -2529,7 +2555,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->height = __pyx_v_height;
 
-  /* "pyv4l2/camera.pyx":74
+  /* "pyv4l2/camera.pyx":75
  *         self.height = height
  * 
  *         self.frame_size = width * height             # <<<<<<<<<<<<<<
@@ -2538,7 +2564,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->frame_size = (__pyx_v_width * __pyx_v_height);
 
-  /* "pyv4l2/camera.pyx":75
+  /* "pyv4l2/camera.pyx":76
  * 
  *         self.frame_size = width * height
  *         self.frame_data = <unsigned char *>malloc(self.frame_size)             # <<<<<<<<<<<<<<
@@ -2547,7 +2573,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->frame_data = ((unsigned char *)malloc(__pyx_v_self->frame_size));
 
-  /* "pyv4l2/camera.pyx":77
+  /* "pyv4l2/camera.pyx":78
  *         self.frame_data = <unsigned char *>malloc(self.frame_size)
  * 
  *         memset(&self.buf_req, 0, sizeof(self.buf_req))             # <<<<<<<<<<<<<<
@@ -2556,7 +2582,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   (void)(memset((&__pyx_v_self->buf_req), 0, (sizeof(__pyx_v_self->buf_req))));
 
-  /* "pyv4l2/camera.pyx":78
+  /* "pyv4l2/camera.pyx":79
  * 
  *         memset(&self.buf_req, 0, sizeof(self.buf_req))
  *         self.buf_req.count = 4             # <<<<<<<<<<<<<<
@@ -2565,7 +2591,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->buf_req.count = 4;
 
-  /* "pyv4l2/camera.pyx":79
+  /* "pyv4l2/camera.pyx":80
  *         memset(&self.buf_req, 0, sizeof(self.buf_req))
  *         self.buf_req.count = 4
  *         self.buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE             # <<<<<<<<<<<<<<
@@ -2574,7 +2600,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-  /* "pyv4l2/camera.pyx":80
+  /* "pyv4l2/camera.pyx":81
  *         self.buf_req.count = 4
  *         self.buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *         self.buf_req.memory = V4L2_MEMORY_MMAP             # <<<<<<<<<<<<<<
@@ -2583,7 +2609,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->buf_req.memory = V4L2_MEMORY_MMAP;
 
-  /* "pyv4l2/camera.pyx":82
+  /* "pyv4l2/camera.pyx":83
  *         self.buf_req.memory = V4L2_MEMORY_MMAP
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_REQBUFS, &self.buf_req):             # <<<<<<<<<<<<<<
@@ -2593,14 +2619,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_t_5 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_REQBUFS, (&__pyx_v_self->buf_req))) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pyv4l2/camera.pyx":83
+    /* "pyv4l2/camera.pyx":84
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_REQBUFS, &self.buf_req):
  *             raise CameraError('Requesting buffer failed')             # <<<<<<<<<<<<<<
  * 
  *         self.buffers = <buffer_info *>calloc(self.buf_req.count,
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2614,14 +2640,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     }
     __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Requesting_buffer_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Requesting_buffer_failed);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 83, __pyx_L1_error)
+    __PYX_ERR(0, 84, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":82
+    /* "pyv4l2/camera.pyx":83
  *         self.buf_req.memory = V4L2_MEMORY_MMAP
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_REQBUFS, &self.buf_req):             # <<<<<<<<<<<<<<
@@ -2630,7 +2656,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":85
+  /* "pyv4l2/camera.pyx":86
  *             raise CameraError('Requesting buffer failed')
  * 
  *         self.buffers = <buffer_info *>calloc(self.buf_req.count,             # <<<<<<<<<<<<<<
@@ -2639,7 +2665,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   __pyx_v_self->buffers = ((struct __pyx_t_6pyv4l2_4v4l2_buffer_info *)calloc(__pyx_v_self->buf_req.count, (sizeof((__pyx_v_self->buffers[0])))));
 
-  /* "pyv4l2/camera.pyx":87
+  /* "pyv4l2/camera.pyx":88
  *         self.buffers = <buffer_info *>calloc(self.buf_req.count,
  *                                              sizeof(self.buffers[0]))
  *         if self.buffers == NULL:             # <<<<<<<<<<<<<<
@@ -2649,14 +2675,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_t_5 = ((__pyx_v_self->buffers == NULL) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pyv4l2/camera.pyx":88
+    /* "pyv4l2/camera.pyx":89
  *                                              sizeof(self.buffers[0]))
  *         if self.buffers == NULL:
  *             raise CameraError('Allocating memory for buffers array failed')             # <<<<<<<<<<<<<<
  *         self.initialize_buffers()
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 89, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2670,14 +2696,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     }
     __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Allocating_memory_for_buffers_ar) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Allocating_memory_for_buffers_ar);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 88, __pyx_L1_error)
+    __PYX_ERR(0, 89, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":87
+    /* "pyv4l2/camera.pyx":88
  *         self.buffers = <buffer_info *>calloc(self.buf_req.count,
  *                                              sizeof(self.buffers[0]))
  *         if self.buffers == NULL:             # <<<<<<<<<<<<<<
@@ -2686,16 +2712,16 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":89
+  /* "pyv4l2/camera.pyx":90
  *         if self.buffers == NULL:
  *             raise CameraError('Allocating memory for buffers array failed')
  *         self.initialize_buffers()             # <<<<<<<<<<<<<<
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_STREAMON, &self.buf.type):
  */
-  __pyx_t_8 = __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(__pyx_v_self); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 89, __pyx_L1_error)
+  __pyx_t_8 = __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(__pyx_v_self); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 90, __pyx_L1_error)
 
-  /* "pyv4l2/camera.pyx":91
+  /* "pyv4l2/camera.pyx":92
  *         self.initialize_buffers()
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_STREAMON, &self.buf.type):             # <<<<<<<<<<<<<<
@@ -2705,14 +2731,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_t_5 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_STREAMON, (&__pyx_v_self->buf.type))) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "pyv4l2/camera.pyx":92
+    /* "pyv4l2/camera.pyx":93
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_STREAMON, &self.buf.type):
  *             raise CameraError('Starting capture failed')             # <<<<<<<<<<<<<<
  * 
  *     cdef inline int initialize_buffers(self) except -1:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2726,14 +2752,14 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
     }
     __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Starting_capture_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Starting_capture_failed);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 92, __pyx_L1_error)
+    __PYX_ERR(0, 93, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":91
+    /* "pyv4l2/camera.pyx":92
  *         self.initialize_buffers()
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_STREAMON, &self.buf.type):             # <<<<<<<<<<<<<<
@@ -2742,8 +2768,8 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":49
- *     cdef timeval tv
+  /* "pyv4l2/camera.pyx":50
+ *     cdef unsigned long timestamp
  * 
  *     def __cinit__(self, device_path,             # <<<<<<<<<<<<<<
  *                   unsigned int width=1280, unsigned int height=480):
@@ -2767,7 +2793,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":94
+/* "pyv4l2/camera.pyx":95
  *             raise CameraError('Starting capture failed')
  * 
  *     cdef inline int initialize_buffers(self) except -1:             # <<<<<<<<<<<<<<
@@ -2794,7 +2820,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
   struct __pyx_t_6pyv4l2_4v4l2_buffer_info __pyx_t_12;
   __Pyx_RefNannySetupContext("initialize_buffers", 0);
 
-  /* "pyv4l2/camera.pyx":95
+  /* "pyv4l2/camera.pyx":96
  * 
  *     cdef inline int initialize_buffers(self) except -1:
  *         for buf_index in range(self.buf_req.count):             # <<<<<<<<<<<<<<
@@ -2806,7 +2832,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_buf_index = __pyx_t_3;
 
-    /* "pyv4l2/camera.pyx":96
+    /* "pyv4l2/camera.pyx":97
  *     cdef inline int initialize_buffers(self) except -1:
  *         for buf_index in range(self.buf_req.count):
  *             memset(&self.buf, 0, sizeof(self.buf))             # <<<<<<<<<<<<<<
@@ -2815,7 +2841,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     (void)(memset((&__pyx_v_self->buf), 0, (sizeof(__pyx_v_self->buf))));
 
-    /* "pyv4l2/camera.pyx":97
+    /* "pyv4l2/camera.pyx":98
  *         for buf_index in range(self.buf_req.count):
  *             memset(&self.buf, 0, sizeof(self.buf))
  *             self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE             # <<<<<<<<<<<<<<
@@ -2824,7 +2850,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_self->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    /* "pyv4l2/camera.pyx":98
+    /* "pyv4l2/camera.pyx":99
  *             memset(&self.buf, 0, sizeof(self.buf))
  *             self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *             self.buf.memory = V4L2_MEMORY_MMAP             # <<<<<<<<<<<<<<
@@ -2833,7 +2859,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_self->buf.memory = V4L2_MEMORY_MMAP;
 
-    /* "pyv4l2/camera.pyx":99
+    /* "pyv4l2/camera.pyx":100
  *             self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *             self.buf.memory = V4L2_MEMORY_MMAP
  *             self.buf.index = buf_index             # <<<<<<<<<<<<<<
@@ -2842,7 +2868,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_self->buf.index = __pyx_v_buf_index;
 
-    /* "pyv4l2/camera.pyx":101
+    /* "pyv4l2/camera.pyx":102
  *             self.buf.index = buf_index
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_QUERYBUF, &self.buf):             # <<<<<<<<<<<<<<
@@ -2852,14 +2878,14 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
     __pyx_t_4 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QUERYBUF, (&__pyx_v_self->buf))) != 0);
     if (unlikely(__pyx_t_4)) {
 
-      /* "pyv4l2/camera.pyx":102
+      /* "pyv4l2/camera.pyx":103
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_QUERYBUF, &self.buf):
  *                 raise CameraError('Querying buffer failed')             # <<<<<<<<<<<<<<
  * 
  *             bufptr = v4l2_mmap(NULL, self.buf.length,
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 102, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 103, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_7 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -2873,14 +2899,14 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
       }
       __pyx_t_5 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_kp_u_Querying_buffer_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_kp_u_Querying_buffer_failed);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 102, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_Raise(__pyx_t_5, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __PYX_ERR(0, 102, __pyx_L1_error)
+      __PYX_ERR(0, 103, __pyx_L1_error)
 
-      /* "pyv4l2/camera.pyx":101
+      /* "pyv4l2/camera.pyx":102
  *             self.buf.index = buf_index
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_QUERYBUF, &self.buf):             # <<<<<<<<<<<<<<
@@ -2889,7 +2915,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     }
 
-    /* "pyv4l2/camera.pyx":104
+    /* "pyv4l2/camera.pyx":105
  *                 raise CameraError('Querying buffer failed')
  * 
  *             bufptr = v4l2_mmap(NULL, self.buf.length,             # <<<<<<<<<<<<<<
@@ -2898,7 +2924,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_bufptr = v4l2_mmap(NULL, __pyx_v_self->buf.length, (PROT_READ | PROT_WRITE), MAP_SHARED, __pyx_v_self->fd, __pyx_v_self->buf.m.offset);
 
-    /* "pyv4l2/camera.pyx":108
+    /* "pyv4l2/camera.pyx":109
  *                                MAP_SHARED, self.fd, self.buf.m.offset)
  * 
  *             if bufptr == <void *>-1:             # <<<<<<<<<<<<<<
@@ -2908,19 +2934,19 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
     __pyx_t_4 = ((__pyx_v_bufptr == ((void *)-1L)) != 0);
     if (unlikely(__pyx_t_4)) {
 
-      /* "pyv4l2/camera.pyx":109
+      /* "pyv4l2/camera.pyx":110
  * 
  *             if bufptr == <void *>-1:
  *                 raise CameraError('MMAP failed: {}'.format(             # <<<<<<<<<<<<<<
  *                     strerror(errno).decode())
  *                 )
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 109, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_MMAP_failed, __pyx_n_s_format); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 109, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_MMAP_failed, __pyx_n_s_format); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
 
-      /* "pyv4l2/camera.pyx":110
+      /* "pyv4l2/camera.pyx":111
  *             if bufptr == <void *>-1:
  *                 raise CameraError('MMAP failed: {}'.format(
  *                     strerror(errno).decode())             # <<<<<<<<<<<<<<
@@ -2928,7 +2954,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  * 
  */
       __pyx_t_9 = strerror(errno);
-      __pyx_t_10 = __Pyx_decode_c_string(__pyx_t_9, 0, strlen(__pyx_t_9), NULL, NULL, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 110, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_decode_c_string(__pyx_t_9, 0, strlen(__pyx_t_9), NULL, NULL, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 111, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
       __pyx_t_11 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
@@ -2943,7 +2969,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
       __pyx_t_7 = (__pyx_t_11) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_11, __pyx_t_10) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_10);
       __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 109, __pyx_L1_error)
+      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __pyx_t_8 = NULL;
@@ -2959,14 +2985,14 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
       __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_8, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 109, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_Raise(__pyx_t_5, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __PYX_ERR(0, 109, __pyx_L1_error)
+      __PYX_ERR(0, 110, __pyx_L1_error)
 
-      /* "pyv4l2/camera.pyx":108
+      /* "pyv4l2/camera.pyx":109
  *                                MAP_SHARED, self.fd, self.buf.m.offset)
  * 
  *             if bufptr == <void *>-1:             # <<<<<<<<<<<<<<
@@ -2975,7 +3001,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     }
 
-    /* "pyv4l2/camera.pyx":113
+    /* "pyv4l2/camera.pyx":114
  *                 )
  * 
  *             self.buffers[buf_index] = buffer_info(bufptr, self.buf.length)             # <<<<<<<<<<<<<<
@@ -2986,7 +3012,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
     __pyx_t_12.length = __pyx_v_self->buf.length;
     (__pyx_v_self->buffers[__pyx_v_buf_index]) = __pyx_t_12;
 
-    /* "pyv4l2/camera.pyx":115
+    /* "pyv4l2/camera.pyx":116
  *             self.buffers[buf_index] = buffer_info(bufptr, self.buf.length)
  * 
  *             memset(&self.buf, 0, sizeof(self.buf))             # <<<<<<<<<<<<<<
@@ -2995,7 +3021,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     (void)(memset((&__pyx_v_self->buf), 0, (sizeof(__pyx_v_self->buf))));
 
-    /* "pyv4l2/camera.pyx":116
+    /* "pyv4l2/camera.pyx":117
  * 
  *             memset(&self.buf, 0, sizeof(self.buf))
  *             self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE             # <<<<<<<<<<<<<<
@@ -3004,7 +3030,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_self->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    /* "pyv4l2/camera.pyx":117
+    /* "pyv4l2/camera.pyx":118
  *             memset(&self.buf, 0, sizeof(self.buf))
  *             self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *             self.buf.memory = V4L2_MEMORY_MMAP             # <<<<<<<<<<<<<<
@@ -3013,7 +3039,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_self->buf.memory = V4L2_MEMORY_MMAP;
 
-    /* "pyv4l2/camera.pyx":118
+    /* "pyv4l2/camera.pyx":119
  *             self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *             self.buf.memory = V4L2_MEMORY_MMAP
  *             self.buf.index = buf_index             # <<<<<<<<<<<<<<
@@ -3022,7 +3048,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
  */
     __pyx_v_self->buf.index = __pyx_v_buf_index;
 
-    /* "pyv4l2/camera.pyx":120
+    /* "pyv4l2/camera.pyx":121
  *             self.buf.index = buf_index
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):             # <<<<<<<<<<<<<<
@@ -3032,14 +3058,14 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
     __pyx_t_4 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QBUF, (&__pyx_v_self->buf))) != 0);
     if (unlikely(__pyx_t_4)) {
 
-      /* "pyv4l2/camera.pyx":121
+      /* "pyv4l2/camera.pyx":122
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):
  *                 raise CameraError('Exchanging buffer with device failed')             # <<<<<<<<<<<<<<
  * 
  *         return 0
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 121, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 122, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_7 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -3053,14 +3079,14 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
       }
       __pyx_t_5 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_kp_u_Exchanging_buffer_with_device_fa) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_kp_u_Exchanging_buffer_with_device_fa);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 121, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 122, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_Raise(__pyx_t_5, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __PYX_ERR(0, 121, __pyx_L1_error)
+      __PYX_ERR(0, 122, __pyx_L1_error)
 
-      /* "pyv4l2/camera.pyx":120
+      /* "pyv4l2/camera.pyx":121
  *             self.buf.index = buf_index
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):             # <<<<<<<<<<<<<<
@@ -3070,7 +3096,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
     }
   }
 
-  /* "pyv4l2/camera.pyx":123
+  /* "pyv4l2/camera.pyx":124
  *                 raise CameraError('Exchanging buffer with device failed')
  * 
  *         return 0             # <<<<<<<<<<<<<<
@@ -3080,7 +3106,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "pyv4l2/camera.pyx":94
+  /* "pyv4l2/camera.pyx":95
  *             raise CameraError('Starting capture failed')
  * 
  *     cdef inline int initialize_buffers(self) except -1:             # <<<<<<<<<<<<<<
@@ -3103,7 +3129,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_6camera_6Camera_initialize_buffers(stru
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":125
+/* "pyv4l2/camera.pyx":126
  *         return 0
  * 
  *     cdef list enumerate_menu(self, v4l2_queryctrl *queryctrl,             # <<<<<<<<<<<<<<
@@ -3126,19 +3152,19 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
   PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("enumerate_menu", 0);
 
-  /* "pyv4l2/camera.pyx":127
+  /* "pyv4l2/camera.pyx":128
  *     cdef list enumerate_menu(self, v4l2_queryctrl *queryctrl,
  *                              v4l2_querymenu *querymenu):
  *         menu = []             # <<<<<<<<<<<<<<
  * 
  *         if queryctrl.type == V4L2_CTRL_TYPE_MENU:
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_menu = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyv4l2/camera.pyx":129
+  /* "pyv4l2/camera.pyx":130
  *         menu = []
  * 
  *         if queryctrl.type == V4L2_CTRL_TYPE_MENU:             # <<<<<<<<<<<<<<
@@ -3148,7 +3174,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
   __pyx_t_2 = ((__pyx_v_queryctrl->type == V4L2_CTRL_TYPE_MENU) != 0);
   if (__pyx_t_2) {
 
-    /* "pyv4l2/camera.pyx":130
+    /* "pyv4l2/camera.pyx":131
  * 
  *         if queryctrl.type == V4L2_CTRL_TYPE_MENU:
  *             memset(querymenu, 0, sizeof(querymenu[0]))             # <<<<<<<<<<<<<<
@@ -3157,7 +3183,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
  */
     (void)(memset(__pyx_v_querymenu, 0, (sizeof((__pyx_v_querymenu[0])))));
 
-    /* "pyv4l2/camera.pyx":131
+    /* "pyv4l2/camera.pyx":132
  *         if queryctrl.type == V4L2_CTRL_TYPE_MENU:
  *             memset(querymenu, 0, sizeof(querymenu[0]))
  *             querymenu.id = queryctrl.id             # <<<<<<<<<<<<<<
@@ -3167,7 +3193,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
     __pyx_t_3 = __pyx_v_queryctrl->id;
     __pyx_v_querymenu->id = __pyx_t_3;
 
-    /* "pyv4l2/camera.pyx":134
+    /* "pyv4l2/camera.pyx":135
  * 
  *             for querymenu.index in range(queryctrl.minimum,
  *                                          queryctrl.maximum + 1):             # <<<<<<<<<<<<<<
@@ -3176,7 +3202,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
  */
     __pyx_t_4 = (__pyx_v_queryctrl->maximum + 1);
 
-    /* "pyv4l2/camera.pyx":133
+    /* "pyv4l2/camera.pyx":134
  *             querymenu.id = queryctrl.id
  * 
  *             for querymenu.index in range(queryctrl.minimum,             # <<<<<<<<<<<<<<
@@ -3187,7 +3213,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
     for (__pyx_t_3 = __pyx_v_queryctrl->minimum; __pyx_t_3 < __pyx_t_5; __pyx_t_3+=1) {
       __pyx_v_querymenu->index = __pyx_t_3;
 
-      /* "pyv4l2/camera.pyx":135
+      /* "pyv4l2/camera.pyx":136
  *             for querymenu.index in range(queryctrl.minimum,
  *                                          queryctrl.maximum + 1):
  *                 if 0 == xioctl(self.fd, VIDIOC_QUERYMENU, querymenu):             # <<<<<<<<<<<<<<
@@ -3197,7 +3223,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
       __pyx_t_2 = ((0 == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QUERYMENU, __pyx_v_querymenu)) != 0);
       if (likely(__pyx_t_2)) {
 
-        /* "pyv4l2/camera.pyx":136
+        /* "pyv4l2/camera.pyx":137
  *                                          queryctrl.maximum + 1):
  *                 if 0 == xioctl(self.fd, VIDIOC_QUERYMENU, querymenu):
  *                     menu.append(querymenu.name.decode('utf-8'))             # <<<<<<<<<<<<<<
@@ -3205,12 +3231,12 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
  *                     raise CameraError('Querying controls failed')
  */
         __pyx_t_6 = __pyx_v_querymenu->name;
-        __pyx_t_1 = __Pyx_decode_c_string(((char const *)__pyx_t_6), 0, strlen(((char const *)__pyx_t_6)), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_decode_c_string(((char const *)__pyx_t_6), 0, strlen(((char const *)__pyx_t_6)), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_menu, __pyx_t_1); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 136, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_menu, __pyx_t_1); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 137, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "pyv4l2/camera.pyx":135
+        /* "pyv4l2/camera.pyx":136
  *             for querymenu.index in range(queryctrl.minimum,
  *                                          queryctrl.maximum + 1):
  *                 if 0 == xioctl(self.fd, VIDIOC_QUERYMENU, querymenu):             # <<<<<<<<<<<<<<
@@ -3220,7 +3246,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
         goto __pyx_L6;
       }
 
-      /* "pyv4l2/camera.pyx":138
+      /* "pyv4l2/camera.pyx":139
  *                     menu.append(querymenu.name.decode('utf-8'))
  *                 else:
  *                     raise CameraError('Querying controls failed')             # <<<<<<<<<<<<<<
@@ -3228,7 +3254,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
  *         return menu
  */
       /*else*/ {
-        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 138, __pyx_L1_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 139, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
         __pyx_t_9 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_8))) {
@@ -3242,17 +3268,17 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
         }
         __pyx_t_1 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_9, __pyx_kp_u_Querying_controls_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_kp_u_Querying_controls_failed);
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __Pyx_Raise(__pyx_t_1, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __PYX_ERR(0, 138, __pyx_L1_error)
+        __PYX_ERR(0, 139, __pyx_L1_error)
       }
       __pyx_L6:;
     }
 
-    /* "pyv4l2/camera.pyx":129
+    /* "pyv4l2/camera.pyx":130
  *         menu = []
  * 
  *         if queryctrl.type == V4L2_CTRL_TYPE_MENU:             # <<<<<<<<<<<<<<
@@ -3261,7 +3287,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
  */
   }
 
-  /* "pyv4l2/camera.pyx":140
+  /* "pyv4l2/camera.pyx":141
  *                     raise CameraError('Querying controls failed')
  * 
  *         return menu             # <<<<<<<<<<<<<<
@@ -3273,7 +3299,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
   __pyx_r = __pyx_v_menu;
   goto __pyx_L0;
 
-  /* "pyv4l2/camera.pyx":125
+  /* "pyv4l2/camera.pyx":126
  *         return 0
  * 
  *     cdef list enumerate_menu(self, v4l2_queryctrl *queryctrl,             # <<<<<<<<<<<<<<
@@ -3295,7 +3321,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_enumerate_menu(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":142
+/* "pyv4l2/camera.pyx":143
  *         return menu
  * 
  *     cpdef list get_controls(self):             # <<<<<<<<<<<<<<
@@ -3340,7 +3366,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_controls); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_controls); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_3get_controls)) {
         __Pyx_XDECREF(__pyx_r);
@@ -3357,10 +3383,10 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 143, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 142, __pyx_L1_error)
+        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 143, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -3379,19 +3405,19 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
     #endif
   }
 
-  /* "pyv4l2/camera.pyx":143
+  /* "pyv4l2/camera.pyx":144
  * 
  *     cpdef list get_controls(self):
  *         controls_list = []             # <<<<<<<<<<<<<<
  * 
  *         cdef v4l2_queryctrl queryctrl
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_controls_list = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyv4l2/camera.pyx":148
+  /* "pyv4l2/camera.pyx":149
  *         cdef v4l2_querymenu querymenu
  * 
  *         memset(&queryctrl, 0, sizeof(queryctrl))             # <<<<<<<<<<<<<<
@@ -3400,7 +3426,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
   (void)(memset((&__pyx_v_queryctrl), 0, (sizeof(__pyx_v_queryctrl))));
 
-  /* "pyv4l2/camera.pyx":150
+  /* "pyv4l2/camera.pyx":151
  *         memset(&queryctrl, 0, sizeof(queryctrl))
  * 
  *         for queryctrl.id in range(V4L2_CID_BASE, V4L2_CID_LASTP1):             # <<<<<<<<<<<<<<
@@ -3412,7 +3438,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
   for (__pyx_t_7 = V4L2_CID_BASE; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_queryctrl.id = __pyx_t_7;
 
-    /* "pyv4l2/camera.pyx":151
+    /* "pyv4l2/camera.pyx":152
  * 
  *         for queryctrl.id in range(V4L2_CID_BASE, V4L2_CID_LASTP1):
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -3422,7 +3448,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
     __pyx_t_8 = ((0 == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QUERYCTRL, (&__pyx_v_queryctrl))) != 0);
     if (__pyx_t_8) {
 
-      /* "pyv4l2/camera.pyx":152
+      /* "pyv4l2/camera.pyx":153
  *         for queryctrl.id in range(V4L2_CID_BASE, V4L2_CID_LASTP1):
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *                 if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -3432,7 +3458,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       __pyx_t_8 = ((__pyx_v_queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) != 0);
       if (__pyx_t_8) {
 
-        /* "pyv4l2/camera.pyx":153
+        /* "pyv4l2/camera.pyx":154
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *                 if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:
  *                     continue             # <<<<<<<<<<<<<<
@@ -3441,7 +3467,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
         goto __pyx_L3_continue;
 
-        /* "pyv4l2/camera.pyx":152
+        /* "pyv4l2/camera.pyx":153
  *         for queryctrl.id in range(V4L2_CID_BASE, V4L2_CID_LASTP1):
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *                 if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -3450,21 +3476,21 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
       }
 
-      /* "pyv4l2/camera.pyx":156
+      /* "pyv4l2/camera.pyx":157
  * 
  *                 controls_list.append(
  *                     CameraControl(queryctrl.id, queryctrl.type,             # <<<<<<<<<<<<<<
  *                                   queryctrl.name.decode('utf-8'),
  *                                   queryctrl.default_value, queryctrl.minimum,
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraControl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 156, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraControl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_PyInt_From_enum__v4l2_ctrl_type(__pyx_v_queryctrl.type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 156, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyInt_From_enum__v4l2_ctrl_type(__pyx_v_queryctrl.type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
 
-      /* "pyv4l2/camera.pyx":157
+      /* "pyv4l2/camera.pyx":158
  *                 controls_list.append(
  *                     CameraControl(queryctrl.id, queryctrl.type,
  *                                   queryctrl.name.decode('utf-8'),             # <<<<<<<<<<<<<<
@@ -3472,51 +3498,51 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  *                                   queryctrl.maximum, queryctrl.step,
  */
       __pyx_t_9 = __pyx_v_queryctrl.name;
-      __pyx_t_10 = __Pyx_decode_c_string(((char const *)__pyx_t_9), 0, strlen(((char const *)__pyx_t_9)), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 157, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_decode_c_string(((char const *)__pyx_t_9), 0, strlen(((char const *)__pyx_t_9)), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 158, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
 
-      /* "pyv4l2/camera.pyx":158
+      /* "pyv4l2/camera.pyx":159
  *                     CameraControl(queryctrl.id, queryctrl.type,
  *                                   queryctrl.name.decode('utf-8'),
  *                                   queryctrl.default_value, queryctrl.minimum,             # <<<<<<<<<<<<<<
  *                                   queryctrl.maximum, queryctrl.step,
  *                                   self.enumerate_menu(&queryctrl, &querymenu),
  */
-      __pyx_t_11 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.default_value); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 158, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.default_value); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 159, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_12 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.minimum); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 158, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.minimum); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 159, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
 
-      /* "pyv4l2/camera.pyx":159
+      /* "pyv4l2/camera.pyx":160
  *                                   queryctrl.name.decode('utf-8'),
  *                                   queryctrl.default_value, queryctrl.minimum,
  *                                   queryctrl.maximum, queryctrl.step,             # <<<<<<<<<<<<<<
  *                                   self.enumerate_menu(&queryctrl, &querymenu),
  *                                   queryctrl.flags)
  */
-      __pyx_t_13 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.maximum); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 159, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.maximum); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 160, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.step); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 159, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.step); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 160, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_14);
 
-      /* "pyv4l2/camera.pyx":160
+      /* "pyv4l2/camera.pyx":161
  *                                   queryctrl.default_value, queryctrl.minimum,
  *                                   queryctrl.maximum, queryctrl.step,
  *                                   self.enumerate_menu(&queryctrl, &querymenu),             # <<<<<<<<<<<<<<
  *                                   queryctrl.flags)
  *                 )
  */
-      __pyx_t_15 = ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->enumerate_menu(__pyx_v_self, (&__pyx_v_queryctrl), (&__pyx_v_querymenu)); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 160, __pyx_L1_error)
+      __pyx_t_15 = ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->enumerate_menu(__pyx_v_self, (&__pyx_v_queryctrl), (&__pyx_v_querymenu)); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 161, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_15);
 
-      /* "pyv4l2/camera.pyx":161
+      /* "pyv4l2/camera.pyx":162
  *                                   queryctrl.maximum, queryctrl.step,
  *                                   self.enumerate_menu(&queryctrl, &querymenu),
  *                                   queryctrl.flags)             # <<<<<<<<<<<<<<
  *                 )
  *             elif errno == EINVAL:
  */
-      __pyx_t_16 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.flags); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 161, __pyx_L1_error)
+      __pyx_t_16 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.flags); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 162, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_16);
       __pyx_t_17 = NULL;
       __pyx_t_18 = 0;
@@ -3533,7 +3559,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[10] = {__pyx_t_17, __pyx_t_3, __pyx_t_4, __pyx_t_10, __pyx_t_11, __pyx_t_12, __pyx_t_13, __pyx_t_14, __pyx_t_15, __pyx_t_16};
-        __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_17); __pyx_t_17 = 0;
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3550,7 +3576,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[10] = {__pyx_t_17, __pyx_t_3, __pyx_t_4, __pyx_t_10, __pyx_t_11, __pyx_t_12, __pyx_t_13, __pyx_t_14, __pyx_t_15, __pyx_t_16};
-        __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_17); __pyx_t_17 = 0;
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3565,7 +3591,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       } else
       #endif
       {
-        __pyx_t_19 = PyTuple_New(9+__pyx_t_18); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 156, __pyx_L1_error)
+        __pyx_t_19 = PyTuple_New(9+__pyx_t_18); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 157, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_19);
         if (__pyx_t_17) {
           __Pyx_GIVEREF(__pyx_t_17); PyTuple_SET_ITEM(__pyx_t_19, 0, __pyx_t_17); __pyx_t_17 = NULL;
@@ -3598,23 +3624,23 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
         __pyx_t_14 = 0;
         __pyx_t_15 = 0;
         __pyx_t_16 = 0;
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_19, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_19, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
       }
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "pyv4l2/camera.pyx":155
+      /* "pyv4l2/camera.pyx":156
  *                     continue
  * 
  *                 controls_list.append(             # <<<<<<<<<<<<<<
  *                     CameraControl(queryctrl.id, queryctrl.type,
  *                                   queryctrl.name.decode('utf-8'),
  */
-      __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_controls_list, __pyx_t_1); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 155, __pyx_L1_error)
+      __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_controls_list, __pyx_t_1); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 156, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "pyv4l2/camera.pyx":151
+      /* "pyv4l2/camera.pyx":152
  * 
  *         for queryctrl.id in range(V4L2_CID_BASE, V4L2_CID_LASTP1):
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -3624,7 +3650,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       goto __pyx_L5;
     }
 
-    /* "pyv4l2/camera.pyx":163
+    /* "pyv4l2/camera.pyx":164
  *                                   queryctrl.flags)
  *                 )
  *             elif errno == EINVAL:             # <<<<<<<<<<<<<<
@@ -3634,7 +3660,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
     __pyx_t_8 = ((errno == EINVAL) != 0);
     if (likely(__pyx_t_8)) {
 
-      /* "pyv4l2/camera.pyx":164
+      /* "pyv4l2/camera.pyx":165
  *                 )
  *             elif errno == EINVAL:
  *                 continue             # <<<<<<<<<<<<<<
@@ -3643,7 +3669,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
       goto __pyx_L3_continue;
 
-      /* "pyv4l2/camera.pyx":163
+      /* "pyv4l2/camera.pyx":164
  *                                   queryctrl.flags)
  *                 )
  *             elif errno == EINVAL:             # <<<<<<<<<<<<<<
@@ -3652,7 +3678,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
     }
 
-    /* "pyv4l2/camera.pyx":166
+    /* "pyv4l2/camera.pyx":167
  *                 continue
  *             else:
  *                 raise CameraError('Querying controls failed')             # <<<<<<<<<<<<<<
@@ -3660,7 +3686,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  *         queryctrl.id = V4L2_CID_PRIVATE_BASE
  */
     /*else*/ {
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 166, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 167, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_19 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -3674,18 +3700,18 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       }
       __pyx_t_1 = (__pyx_t_19) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_19, __pyx_kp_u_Querying_controls_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Querying_controls_failed);
       __Pyx_XDECREF(__pyx_t_19); __pyx_t_19 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 166, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 167, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 166, __pyx_L1_error)
+      __PYX_ERR(0, 167, __pyx_L1_error)
     }
     __pyx_L5:;
     __pyx_L3_continue:;
   }
 
-  /* "pyv4l2/camera.pyx":168
+  /* "pyv4l2/camera.pyx":169
  *                 raise CameraError('Querying controls failed')
  * 
  *         queryctrl.id = V4L2_CID_PRIVATE_BASE             # <<<<<<<<<<<<<<
@@ -3694,7 +3720,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
   __pyx_v_queryctrl.id = V4L2_CID_PRIVATE_BASE;
 
-  /* "pyv4l2/camera.pyx":169
+  /* "pyv4l2/camera.pyx":170
  * 
  *         queryctrl.id = V4L2_CID_PRIVATE_BASE
  *         while True:             # <<<<<<<<<<<<<<
@@ -3703,7 +3729,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
   while (1) {
 
-    /* "pyv4l2/camera.pyx":170
+    /* "pyv4l2/camera.pyx":171
  *         queryctrl.id = V4L2_CID_PRIVATE_BASE
  *         while True:
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -3713,7 +3739,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
     __pyx_t_8 = ((0 == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QUERYCTRL, (&__pyx_v_queryctrl))) != 0);
     if (__pyx_t_8) {
 
-      /* "pyv4l2/camera.pyx":171
+      /* "pyv4l2/camera.pyx":172
  *         while True:
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *                 if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -3723,7 +3749,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       __pyx_t_8 = ((__pyx_v_queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) != 0);
       if (__pyx_t_8) {
 
-        /* "pyv4l2/camera.pyx":172
+        /* "pyv4l2/camera.pyx":173
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *                 if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:
  *                     continue             # <<<<<<<<<<<<<<
@@ -3732,7 +3758,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
         goto __pyx_L7_continue;
 
-        /* "pyv4l2/camera.pyx":171
+        /* "pyv4l2/camera.pyx":172
  *         while True:
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *                 if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -3741,21 +3767,21 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
       }
 
-      /* "pyv4l2/camera.pyx":175
+      /* "pyv4l2/camera.pyx":176
  * 
  *                 controls_list.append(
  *                     CameraControl(queryctrl.id, queryctrl.type,             # <<<<<<<<<<<<<<
  *                                   queryctrl.name.decode('utf-8'),
  *                                   queryctrl.default_value, queryctrl.minimum,
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraControl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraControl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_19 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.id); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 175, __pyx_L1_error)
+      __pyx_t_19 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.id); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_19);
-      __pyx_t_16 = __Pyx_PyInt_From_enum__v4l2_ctrl_type(__pyx_v_queryctrl.type); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 175, __pyx_L1_error)
+      __pyx_t_16 = __Pyx_PyInt_From_enum__v4l2_ctrl_type(__pyx_v_queryctrl.type); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_16);
 
-      /* "pyv4l2/camera.pyx":176
+      /* "pyv4l2/camera.pyx":177
  *                 controls_list.append(
  *                     CameraControl(queryctrl.id, queryctrl.type,
  *                                   queryctrl.name.decode('utf-8'),             # <<<<<<<<<<<<<<
@@ -3763,51 +3789,51 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  *                                   queryctrl.maximum, queryctrl.step,
  */
       __pyx_t_9 = __pyx_v_queryctrl.name;
-      __pyx_t_15 = __Pyx_decode_c_string(((char const *)__pyx_t_9), 0, strlen(((char const *)__pyx_t_9)), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 176, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_decode_c_string(((char const *)__pyx_t_9), 0, strlen(((char const *)__pyx_t_9)), NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 177, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_15);
 
-      /* "pyv4l2/camera.pyx":177
+      /* "pyv4l2/camera.pyx":178
  *                     CameraControl(queryctrl.id, queryctrl.type,
  *                                   queryctrl.name.decode('utf-8'),
  *                                   queryctrl.default_value, queryctrl.minimum,             # <<<<<<<<<<<<<<
  *                                   queryctrl.maximum, queryctrl.step,
  *                                   self.enumerate_menu(&queryctrl, &querymenu),
  */
-      __pyx_t_14 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.default_value); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 177, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.default_value); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 178, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_13 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.minimum); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 177, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.minimum); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 178, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
 
-      /* "pyv4l2/camera.pyx":178
+      /* "pyv4l2/camera.pyx":179
  *                                   queryctrl.name.decode('utf-8'),
  *                                   queryctrl.default_value, queryctrl.minimum,
  *                                   queryctrl.maximum, queryctrl.step,             # <<<<<<<<<<<<<<
  *                                   self.enumerate_menu(&queryctrl, &querymenu),
  *                                   queryctrl.flags)
  */
-      __pyx_t_12 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.maximum); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 178, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.maximum); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 179, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_11 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.step); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 178, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_From___s32(__pyx_v_queryctrl.step); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 179, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
 
-      /* "pyv4l2/camera.pyx":179
+      /* "pyv4l2/camera.pyx":180
  *                                   queryctrl.default_value, queryctrl.minimum,
  *                                   queryctrl.maximum, queryctrl.step,
  *                                   self.enumerate_menu(&queryctrl, &querymenu),             # <<<<<<<<<<<<<<
  *                                   queryctrl.flags)
  *                 )
  */
-      __pyx_t_10 = ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->enumerate_menu(__pyx_v_self, (&__pyx_v_queryctrl), (&__pyx_v_querymenu)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_10 = ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->enumerate_menu(__pyx_v_self, (&__pyx_v_queryctrl), (&__pyx_v_querymenu)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 180, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
 
-      /* "pyv4l2/camera.pyx":180
+      /* "pyv4l2/camera.pyx":181
  *                                   queryctrl.maximum, queryctrl.step,
  *                                   self.enumerate_menu(&queryctrl, &querymenu),
  *                                   queryctrl.flags)             # <<<<<<<<<<<<<<
  *                 )
  *             elif errno == EINVAL:
  */
-      __pyx_t_4 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.flags); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyInt_From___u32(__pyx_v_queryctrl.flags); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 181, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_3 = NULL;
       __pyx_t_18 = 0;
@@ -3824,7 +3850,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[10] = {__pyx_t_3, __pyx_t_19, __pyx_t_16, __pyx_t_15, __pyx_t_14, __pyx_t_13, __pyx_t_12, __pyx_t_11, __pyx_t_10, __pyx_t_4};
-        __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
@@ -3841,7 +3867,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[10] = {__pyx_t_3, __pyx_t_19, __pyx_t_16, __pyx_t_15, __pyx_t_14, __pyx_t_13, __pyx_t_12, __pyx_t_11, __pyx_t_10, __pyx_t_4};
-        __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_18, 9+__pyx_t_18); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
@@ -3856,7 +3882,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       } else
       #endif
       {
-        __pyx_t_17 = PyTuple_New(9+__pyx_t_18); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 175, __pyx_L1_error)
+        __pyx_t_17 = PyTuple_New(9+__pyx_t_18); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 176, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_17);
         if (__pyx_t_3) {
           __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_17, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -3889,23 +3915,23 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
         __pyx_t_11 = 0;
         __pyx_t_10 = 0;
         __pyx_t_4 = 0;
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_17, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_17, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
       }
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "pyv4l2/camera.pyx":174
+      /* "pyv4l2/camera.pyx":175
  *                     continue
  * 
  *                 controls_list.append(             # <<<<<<<<<<<<<<
  *                     CameraControl(queryctrl.id, queryctrl.type,
  *                                   queryctrl.name.decode('utf-8'),
  */
-      __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_controls_list, __pyx_t_1); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 174, __pyx_L1_error)
+      __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_controls_list, __pyx_t_1); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 175, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "pyv4l2/camera.pyx":170
+      /* "pyv4l2/camera.pyx":171
  *         queryctrl.id = V4L2_CID_PRIVATE_BASE
  *         while True:
  *             if 0 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -3915,7 +3941,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       goto __pyx_L9;
     }
 
-    /* "pyv4l2/camera.pyx":182
+    /* "pyv4l2/camera.pyx":183
  *                                   queryctrl.flags)
  *                 )
  *             elif errno == EINVAL:             # <<<<<<<<<<<<<<
@@ -3925,7 +3951,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
     __pyx_t_8 = ((errno == EINVAL) != 0);
     if (likely(__pyx_t_8)) {
 
-      /* "pyv4l2/camera.pyx":183
+      /* "pyv4l2/camera.pyx":184
  *                 )
  *             elif errno == EINVAL:
  *                 break             # <<<<<<<<<<<<<<
@@ -3934,7 +3960,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
       goto __pyx_L8_break;
 
-      /* "pyv4l2/camera.pyx":182
+      /* "pyv4l2/camera.pyx":183
  *                                   queryctrl.flags)
  *                 )
  *             elif errno == EINVAL:             # <<<<<<<<<<<<<<
@@ -3943,7 +3969,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  */
     }
 
-    /* "pyv4l2/camera.pyx":185
+    /* "pyv4l2/camera.pyx":186
  *                 break
  *             else:
  *                 raise CameraError('Querying controls failed')             # <<<<<<<<<<<<<<
@@ -3951,7 +3977,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
  *         return controls_list
  */
     /*else*/ {
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 186, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_17 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -3965,19 +3991,19 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
       }
       __pyx_t_1 = (__pyx_t_17) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_17, __pyx_kp_u_Querying_controls_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Querying_controls_failed);
       __Pyx_XDECREF(__pyx_t_17); __pyx_t_17 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 185, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 185, __pyx_L1_error)
+      __PYX_ERR(0, 186, __pyx_L1_error)
     }
     __pyx_L9:;
     __pyx_L7_continue:;
   }
   __pyx_L8_break:;
 
-  /* "pyv4l2/camera.pyx":187
+  /* "pyv4l2/camera.pyx":188
  *                 raise CameraError('Querying controls failed')
  * 
  *         return controls_list             # <<<<<<<<<<<<<<
@@ -3989,7 +4015,7 @@ static PyObject *__pyx_f_6pyv4l2_6camera_6Camera_get_controls(struct __pyx_obj_6
   __pyx_r = __pyx_v_controls_list;
   goto __pyx_L0;
 
-  /* "pyv4l2/camera.pyx":142
+  /* "pyv4l2/camera.pyx":143
  *         return menu
  * 
  *     cpdef list get_controls(self):             # <<<<<<<<<<<<<<
@@ -4040,7 +4066,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_2get_controls(struct __pyx_obj
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_controls", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6pyv4l2_6camera_6Camera_get_controls(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_6pyv4l2_6camera_6Camera_get_controls(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4057,7 +4083,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_2get_controls(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":189
+/* "pyv4l2/camera.pyx":190
  *         return controls_list
  * 
  *     cpdef void set_control_value(self, control_id, value):             # <<<<<<<<<<<<<<
@@ -4089,7 +4115,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_control_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_control_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_5set_control_value)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -4108,7 +4134,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_3)) {
           PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_control_id, __pyx_v_value};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -4116,13 +4142,13 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
           PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_control_id, __pyx_v_value};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 189, __pyx_L1_error)
+          __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 190, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
           if (__pyx_t_4) {
             __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4133,7 +4159,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
           __Pyx_INCREF(__pyx_v_value);
           __Pyx_GIVEREF(__pyx_v_value);
           PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_v_value);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         }
@@ -4155,7 +4181,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
     #endif
   }
 
-  /* "pyv4l2/camera.pyx":193
+  /* "pyv4l2/camera.pyx":194
  *         cdef v4l2_control control
  * 
  *         memset(&queryctrl, 0, sizeof(queryctrl))             # <<<<<<<<<<<<<<
@@ -4164,20 +4190,20 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
  */
   (void)(memset((&__pyx_v_queryctrl), 0, (sizeof(__pyx_v_queryctrl))));
 
-  /* "pyv4l2/camera.pyx":194
+  /* "pyv4l2/camera.pyx":195
  * 
  *         memset(&queryctrl, 0, sizeof(queryctrl))
  *         queryctrl.id = control_id.value             # <<<<<<<<<<<<<<
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_7 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_7 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_queryctrl.id = __pyx_t_7;
 
-  /* "pyv4l2/camera.pyx":196
+  /* "pyv4l2/camera.pyx":197
  *         queryctrl.id = control_id.value
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -4187,7 +4213,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
   __pyx_t_8 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QUERYCTRL, (&__pyx_v_queryctrl))) != 0);
   if (__pyx_t_8) {
 
-    /* "pyv4l2/camera.pyx":197
+    /* "pyv4l2/camera.pyx":198
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *             if errno != EINVAL:             # <<<<<<<<<<<<<<
@@ -4197,14 +4223,14 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
     __pyx_t_8 = ((errno != EINVAL) != 0);
     if (unlikely(__pyx_t_8)) {
 
-      /* "pyv4l2/camera.pyx":198
+      /* "pyv4l2/camera.pyx":199
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *             if errno != EINVAL:
  *                 raise CameraError('Querying control')             # <<<<<<<<<<<<<<
  *             else:
  *                 raise AttributeError('Control is not supported')
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_3 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4218,14 +4244,14 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
       }
       __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Querying_control) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Querying_control);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 198, __pyx_L1_error)
+      __PYX_ERR(0, 199, __pyx_L1_error)
 
-      /* "pyv4l2/camera.pyx":197
+      /* "pyv4l2/camera.pyx":198
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *             if errno != EINVAL:             # <<<<<<<<<<<<<<
@@ -4234,7 +4260,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
  */
     }
 
-    /* "pyv4l2/camera.pyx":200
+    /* "pyv4l2/camera.pyx":201
  *                 raise CameraError('Querying control')
  *             else:
  *                 raise AttributeError('Control is not supported')             # <<<<<<<<<<<<<<
@@ -4242,14 +4268,14 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
  *             raise AttributeError('Control is not supported')
  */
     /*else*/ {
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 200, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 200, __pyx_L1_error)
+      __PYX_ERR(0, 201, __pyx_L1_error)
     }
 
-    /* "pyv4l2/camera.pyx":196
+    /* "pyv4l2/camera.pyx":197
  *         queryctrl.id = control_id.value
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -4258,7 +4284,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":201
+  /* "pyv4l2/camera.pyx":202
  *             else:
  *                 raise AttributeError('Control is not supported')
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -4268,20 +4294,20 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
   __pyx_t_8 = ((__pyx_v_queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) != 0);
   if (unlikely(__pyx_t_8)) {
 
-    /* "pyv4l2/camera.pyx":202
+    /* "pyv4l2/camera.pyx":203
  *                 raise AttributeError('Control is not supported')
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:
  *             raise AttributeError('Control is not supported')             # <<<<<<<<<<<<<<
  *         else:
  *             memset(&control, 0, sizeof(control))
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 203, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 202, __pyx_L1_error)
+    __PYX_ERR(0, 203, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":201
+    /* "pyv4l2/camera.pyx":202
  *             else:
  *                 raise AttributeError('Control is not supported')
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -4290,7 +4316,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
  */
   }
 
-  /* "pyv4l2/camera.pyx":204
+  /* "pyv4l2/camera.pyx":205
  *             raise AttributeError('Control is not supported')
  *         else:
  *             memset(&control, 0, sizeof(control))             # <<<<<<<<<<<<<<
@@ -4300,30 +4326,30 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
   /*else*/ {
     (void)(memset((&__pyx_v_control), 0, (sizeof(__pyx_v_control))));
 
-    /* "pyv4l2/camera.pyx":205
+    /* "pyv4l2/camera.pyx":206
  *         else:
  *             memset(&control, 0, sizeof(control))
  *             control.id = control_id.value             # <<<<<<<<<<<<<<
  *             control.value = value
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 206, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_7 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 205, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_7 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 206, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_control.id = __pyx_t_7;
 
-    /* "pyv4l2/camera.pyx":206
+    /* "pyv4l2/camera.pyx":207
  *             memset(&control, 0, sizeof(control))
  *             control.id = control_id.value
  *             control.value = value             # <<<<<<<<<<<<<<
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_S_CTRL, &control):
  */
-    __pyx_t_9 = __Pyx_PyInt_As___s32(__pyx_v_value); if (unlikely((__pyx_t_9 == ((__s32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 206, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyInt_As___s32(__pyx_v_value); if (unlikely((__pyx_t_9 == ((__s32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 207, __pyx_L1_error)
     __pyx_v_control.value = __pyx_t_9;
 
-    /* "pyv4l2/camera.pyx":208
+    /* "pyv4l2/camera.pyx":209
  *             control.value = value
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_S_CTRL, &control):             # <<<<<<<<<<<<<<
@@ -4333,14 +4359,14 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
     __pyx_t_8 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_S_CTRL, (&__pyx_v_control))) != 0);
     if (unlikely(__pyx_t_8)) {
 
-      /* "pyv4l2/camera.pyx":209
+      /* "pyv4l2/camera.pyx":210
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_S_CTRL, &control):
  *                 raise CameraError('Setting control')             # <<<<<<<<<<<<<<
  * 
  *     cpdef int get_control_value(self, control_id):
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 209, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_3 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4354,14 +4380,14 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
       }
       __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Setting_control) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Setting_control);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 209, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 209, __pyx_L1_error)
+      __PYX_ERR(0, 210, __pyx_L1_error)
 
-      /* "pyv4l2/camera.pyx":208
+      /* "pyv4l2/camera.pyx":209
  *             control.value = value
  * 
  *             if -1 == xioctl(self.fd, VIDIOC_S_CTRL, &control):             # <<<<<<<<<<<<<<
@@ -4371,7 +4397,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_set_control_value(struct __pyx_obj_6
     }
   }
 
-  /* "pyv4l2/camera.pyx":189
+  /* "pyv4l2/camera.pyx":190
  *         return controls_list
  * 
  *     cpdef void set_control_value(self, control_id, value):             # <<<<<<<<<<<<<<
@@ -4423,11 +4449,11 @@ static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_5set_control_value(PyObject *_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_value)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("set_control_value", 1, 2, 2, 1); __PYX_ERR(0, 189, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("set_control_value", 1, 2, 2, 1); __PYX_ERR(0, 190, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_control_value") < 0)) __PYX_ERR(0, 189, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_control_value") < 0)) __PYX_ERR(0, 190, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4440,7 +4466,7 @@ static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_5set_control_value(PyObject *_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("set_control_value", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 189, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("set_control_value", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 190, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pyv4l2.camera.Camera.set_control_value", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4459,7 +4485,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_4set_control_value(struct __py
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("set_control_value", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6pyv4l2_6camera_6Camera_set_control_value(__pyx_v_self, __pyx_v_control_id, __pyx_v_value, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6pyv4l2_6camera_6Camera_set_control_value(__pyx_v_self, __pyx_v_control_id, __pyx_v_value, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4476,7 +4502,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_4set_control_value(struct __py
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":211
+/* "pyv4l2/camera.pyx":212
  *                 raise CameraError('Setting control')
  * 
  *     cpdef int get_control_value(self, control_id):             # <<<<<<<<<<<<<<
@@ -4507,7 +4533,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_control_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 211, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_control_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_7get_control_value)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -4523,10 +4549,10 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_v_control_id) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_control_id);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 211, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_5;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4545,7 +4571,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
     #endif
   }
 
-  /* "pyv4l2/camera.pyx":215
+  /* "pyv4l2/camera.pyx":216
  *         cdef v4l2_control control
  * 
  *         memset(&queryctrl, 0, sizeof(queryctrl))             # <<<<<<<<<<<<<<
@@ -4554,20 +4580,20 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
  */
   (void)(memset((&__pyx_v_queryctrl), 0, (sizeof(__pyx_v_queryctrl))));
 
-  /* "pyv4l2/camera.pyx":216
+  /* "pyv4l2/camera.pyx":217
  * 
  *         memset(&queryctrl, 0, sizeof(queryctrl))
  *         queryctrl.id = control_id.value             # <<<<<<<<<<<<<<
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_6 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_6 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_queryctrl.id = __pyx_t_6;
 
-  /* "pyv4l2/camera.pyx":218
+  /* "pyv4l2/camera.pyx":219
  *         queryctrl.id = control_id.value
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -4577,7 +4603,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
   __pyx_t_7 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QUERYCTRL, (&__pyx_v_queryctrl))) != 0);
   if (__pyx_t_7) {
 
-    /* "pyv4l2/camera.pyx":219
+    /* "pyv4l2/camera.pyx":220
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *             if errno != EINVAL:             # <<<<<<<<<<<<<<
@@ -4587,14 +4613,14 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
     __pyx_t_7 = ((errno != EINVAL) != 0);
     if (unlikely(__pyx_t_7)) {
 
-      /* "pyv4l2/camera.pyx":220
+      /* "pyv4l2/camera.pyx":221
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *             if errno != EINVAL:
  *                 raise CameraError('Querying control')             # <<<<<<<<<<<<<<
  *             else:
  *                 raise AttributeError('Control is not supported')
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 221, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_3 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4608,14 +4634,14 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
       }
       __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Querying_control) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Querying_control);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 220, __pyx_L1_error)
+      __PYX_ERR(0, 221, __pyx_L1_error)
 
-      /* "pyv4l2/camera.pyx":219
+      /* "pyv4l2/camera.pyx":220
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):
  *             if errno != EINVAL:             # <<<<<<<<<<<<<<
@@ -4624,7 +4650,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
  */
     }
 
-    /* "pyv4l2/camera.pyx":222
+    /* "pyv4l2/camera.pyx":223
  *                 raise CameraError('Querying control')
  *             else:
  *                 raise AttributeError('Control is not supported')             # <<<<<<<<<<<<<<
@@ -4632,14 +4658,14 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
  *             raise AttributeError('Control is not supported')
  */
     /*else*/ {
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 222, __pyx_L1_error)
+      __PYX_ERR(0, 223, __pyx_L1_error)
     }
 
-    /* "pyv4l2/camera.pyx":218
+    /* "pyv4l2/camera.pyx":219
  *         queryctrl.id = control_id.value
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QUERYCTRL, &queryctrl):             # <<<<<<<<<<<<<<
@@ -4648,7 +4674,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
  */
   }
 
-  /* "pyv4l2/camera.pyx":223
+  /* "pyv4l2/camera.pyx":224
  *             else:
  *                 raise AttributeError('Control is not supported')
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -4658,20 +4684,20 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
   __pyx_t_7 = ((__pyx_v_queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) != 0);
   if (unlikely(__pyx_t_7)) {
 
-    /* "pyv4l2/camera.pyx":224
+    /* "pyv4l2/camera.pyx":225
  *                 raise AttributeError('Control is not supported')
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:
  *             raise AttributeError('Control is not supported')             # <<<<<<<<<<<<<<
  *         else:
  *             memset(&control, 0, sizeof(control))
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AttributeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 224, __pyx_L1_error)
+    __PYX_ERR(0, 225, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":223
+    /* "pyv4l2/camera.pyx":224
  *             else:
  *                 raise AttributeError('Control is not supported')
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:             # <<<<<<<<<<<<<<
@@ -4680,7 +4706,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
  */
   }
 
-  /* "pyv4l2/camera.pyx":226
+  /* "pyv4l2/camera.pyx":227
  *             raise AttributeError('Control is not supported')
  *         else:
  *             memset(&control, 0, sizeof(control))             # <<<<<<<<<<<<<<
@@ -4690,20 +4716,20 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
   /*else*/ {
     (void)(memset((&__pyx_v_control), 0, (sizeof(__pyx_v_control))));
 
-    /* "pyv4l2/camera.pyx":227
+    /* "pyv4l2/camera.pyx":228
  *         else:
  *             memset(&control, 0, sizeof(control))
  *             control.id = control_id.value             # <<<<<<<<<<<<<<
  * 
  *             if 0 == xioctl(self.fd, VIDIOC_G_CTRL, &control):
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_control_id, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_6 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_6 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 227, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As___u32(__pyx_t_1); if (unlikely((__pyx_t_6 == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 228, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_control.id = __pyx_t_6;
 
-    /* "pyv4l2/camera.pyx":229
+    /* "pyv4l2/camera.pyx":230
  *             control.id = control_id.value
  * 
  *             if 0 == xioctl(self.fd, VIDIOC_G_CTRL, &control):             # <<<<<<<<<<<<<<
@@ -4713,7 +4739,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
     __pyx_t_7 = ((0 == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_G_CTRL, (&__pyx_v_control))) != 0);
     if (likely(__pyx_t_7)) {
 
-      /* "pyv4l2/camera.pyx":230
+      /* "pyv4l2/camera.pyx":231
  * 
  *             if 0 == xioctl(self.fd, VIDIOC_G_CTRL, &control):
  *                 return control.value             # <<<<<<<<<<<<<<
@@ -4723,7 +4749,7 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
       __pyx_r = __pyx_v_control.value;
       goto __pyx_L0;
 
-      /* "pyv4l2/camera.pyx":229
+      /* "pyv4l2/camera.pyx":230
  *             control.id = control_id.value
  * 
  *             if 0 == xioctl(self.fd, VIDIOC_G_CTRL, &control):             # <<<<<<<<<<<<<<
@@ -4732,15 +4758,15 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
  */
     }
 
-    /* "pyv4l2/camera.pyx":232
+    /* "pyv4l2/camera.pyx":233
  *                 return control.value
  *             else:
  *                 raise CameraError('Getting control')             # <<<<<<<<<<<<<<
  * 
- *     cpdef np.ndarray[np.uint8_t, ndim=2] get_frame(self):
+ *     cdef np.ndarray[np.uint8_t, ndim=2] _get_frame(self):
  */
     /*else*/ {
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_3 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4754,16 +4780,16 @@ static int __pyx_f_6pyv4l2_6camera_6Camera_get_control_value(struct __pyx_obj_6p
       }
       __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Getting_control) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Getting_control);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 232, __pyx_L1_error)
+      __PYX_ERR(0, 233, __pyx_L1_error)
     }
   }
 
-  /* "pyv4l2/camera.pyx":211
+  /* "pyv4l2/camera.pyx":212
  *                 raise CameraError('Setting control')
  * 
  *     cpdef int get_control_value(self, control_id):             # <<<<<<<<<<<<<<
@@ -4803,7 +4829,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_6get_control_value(struct __py
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_control_value", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_6pyv4l2_6camera_6Camera_get_control_value(__pyx_v_self, __pyx_v_control_id, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 211, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_6pyv4l2_6camera_6Camera_get_control_value(__pyx_v_self, __pyx_v_control_id, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4820,143 +4846,48 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_6get_control_value(struct __py
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":234
+/* "pyv4l2/camera.pyx":235
  *                 raise CameraError('Getting control')
  * 
- *     cpdef np.ndarray[np.uint8_t, ndim=2] get_frame(self):             # <<<<<<<<<<<<<<
+ *     cdef np.ndarray[np.uint8_t, ndim=2] _get_frame(self):             # <<<<<<<<<<<<<<
  *         FD_ZERO(&self.fds)
  *         FD_SET(self.fd, &self.fds)
  */
 
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_9get_frame(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch) {
+static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera__get_frame(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
   PyArrayObject *__pyx_v_frame = 0;
   int __pyx_v_r;
   PyArrayObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
+  int __pyx_t_1;
+  int __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
-  int __pyx_t_6;
-  int __pyx_t_7;
-  __Pyx_RefNannySetupContext("get_frame", 0);
-  /* Check if called by wrapper */
-  if (unlikely(__pyx_skip_dispatch)) ;
-  /* Check if overridden in Python */
-  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
-    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
-      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
-      #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_frame); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_9get_frame)) {
-        __Pyx_XDECREF(((PyObject *)__pyx_r));
-        __Pyx_INCREF(__pyx_t_1);
-        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
-          if (likely(__pyx_t_4)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-            __Pyx_INCREF(__pyx_t_4);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_3, function);
-          }
-        }
-        __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 234, __pyx_L1_error)
-        __pyx_r = ((PyArrayObject *)__pyx_t_2);
-        __pyx_t_2 = 0;
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        goto __pyx_L0;
-      }
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
-      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
-      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
-        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-      }
-      #endif
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    }
-    #endif
-  }
+  PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
+  __Pyx_RefNannySetupContext("_get_frame", 0);
 
-  /* "pyv4l2/camera.pyx":235
+  /* "pyv4l2/camera.pyx":236
  * 
- *     cpdef np.ndarray[np.uint8_t, ndim=2] get_frame(self):
+ *     cdef np.ndarray[np.uint8_t, ndim=2] _get_frame(self):
  *         FD_ZERO(&self.fds)             # <<<<<<<<<<<<<<
  *         FD_SET(self.fd, &self.fds)
- *         cdef np.ndarray frame = np.zeros((self.height, self.width), dtype=np.uint8)
+ *         cdef np.ndarray frame
  */
   FD_ZERO((&__pyx_v_self->fds));
 
-  /* "pyv4l2/camera.pyx":236
- *     cpdef np.ndarray[np.uint8_t, ndim=2] get_frame(self):
+  /* "pyv4l2/camera.pyx":237
+ *     cdef np.ndarray[np.uint8_t, ndim=2] _get_frame(self):
  *         FD_ZERO(&self.fds)
  *         FD_SET(self.fd, &self.fds)             # <<<<<<<<<<<<<<
- *         cdef np.ndarray frame = np.zeros((self.height, self.width), dtype=np.uint8)
- * 
+ *         cdef np.ndarray frame
+ *         cdef int r
  */
   FD_SET(__pyx_v_self->fd, (&__pyx_v_self->fds));
 
-  /* "pyv4l2/camera.pyx":237
- *         FD_ZERO(&self.fds)
- *         FD_SET(self.fd, &self.fds)
- *         cdef np.ndarray frame = np.zeros((self.height, self.width), dtype=np.uint8)             # <<<<<<<<<<<<<<
- * 
- *         self.tv.tv_sec = 2
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->height); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->width); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GIVEREF(__pyx_t_1);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_3);
-  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_3);
-  __pyx_t_1 = 0;
-  __pyx_t_3 = 0;
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_4);
-  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
-  __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_uint8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 237, __pyx_L1_error)
-  __pyx_v_frame = ((PyArrayObject *)__pyx_t_5);
-  __pyx_t_5 = 0;
-
-  /* "pyv4l2/camera.pyx":239
- *         cdef np.ndarray frame = np.zeros((self.height, self.width), dtype=np.uint8)
+  /* "pyv4l2/camera.pyx":241
+ *         cdef int r
  * 
  *         self.tv.tv_sec = 2             # <<<<<<<<<<<<<<
  * 
@@ -4964,7 +4895,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   __pyx_v_self->tv.tv_sec = 2;
 
-  /* "pyv4l2/camera.pyx":241
+  /* "pyv4l2/camera.pyx":243
  *         self.tv.tv_sec = 2
  * 
  *         r = select(self.fd + 1, &self.fds, NULL, NULL, &self.tv)             # <<<<<<<<<<<<<<
@@ -4973,7 +4904,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   __pyx_v_r = select((__pyx_v_self->fd + 1), (&__pyx_v_self->fds), NULL, NULL, (&__pyx_v_self->tv));
 
-  /* "pyv4l2/camera.pyx":242
+  /* "pyv4l2/camera.pyx":244
  * 
  *         r = select(self.fd + 1, &self.fds, NULL, NULL, &self.tv)
  *         while -1 == r and errno == EINTR:             # <<<<<<<<<<<<<<
@@ -4981,18 +4912,18 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  *             FD_SET(self.fd, &self.fds)
  */
   while (1) {
-    __pyx_t_7 = ((-1L == __pyx_v_r) != 0);
-    if (__pyx_t_7) {
+    __pyx_t_2 = ((-1L == __pyx_v_r) != 0);
+    if (__pyx_t_2) {
     } else {
-      __pyx_t_6 = __pyx_t_7;
+      __pyx_t_1 = __pyx_t_2;
       goto __pyx_L5_bool_binop_done;
     }
-    __pyx_t_7 = ((errno == EINTR) != 0);
-    __pyx_t_6 = __pyx_t_7;
+    __pyx_t_2 = ((errno == EINTR) != 0);
+    __pyx_t_1 = __pyx_t_2;
     __pyx_L5_bool_binop_done:;
-    if (!__pyx_t_6) break;
+    if (!__pyx_t_1) break;
 
-    /* "pyv4l2/camera.pyx":243
+    /* "pyv4l2/camera.pyx":245
  *         r = select(self.fd + 1, &self.fds, NULL, NULL, &self.tv)
  *         while -1 == r and errno == EINTR:
  *             FD_ZERO(&self.fds)             # <<<<<<<<<<<<<<
@@ -5001,7 +4932,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
     FD_ZERO((&__pyx_v_self->fds));
 
-    /* "pyv4l2/camera.pyx":244
+    /* "pyv4l2/camera.pyx":246
  *         while -1 == r and errno == EINTR:
  *             FD_ZERO(&self.fds)
  *             FD_SET(self.fd, &self.fds)             # <<<<<<<<<<<<<<
@@ -5010,7 +4941,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
     FD_SET(__pyx_v_self->fd, (&__pyx_v_self->fds));
 
-    /* "pyv4l2/camera.pyx":246
+    /* "pyv4l2/camera.pyx":248
  *             FD_SET(self.fd, &self.fds)
  * 
  *             self.tv.tv_sec = 2             # <<<<<<<<<<<<<<
@@ -5019,7 +4950,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
     __pyx_v_self->tv.tv_sec = 2;
 
-    /* "pyv4l2/camera.pyx":248
+    /* "pyv4l2/camera.pyx":250
  *             self.tv.tv_sec = 2
  * 
  *             r = select(self.fd + 1, &self.fds, NULL, NULL, &self.tv)             # <<<<<<<<<<<<<<
@@ -5029,45 +4960,45 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
     __pyx_v_r = select((__pyx_v_self->fd + 1), (&__pyx_v_self->fds), NULL, NULL, (&__pyx_v_self->tv));
   }
 
-  /* "pyv4l2/camera.pyx":250
+  /* "pyv4l2/camera.pyx":252
  *             r = select(self.fd + 1, &self.fds, NULL, NULL, &self.tv)
  * 
  *         if -1 == r:             # <<<<<<<<<<<<<<
  *             raise CameraError('Waiting for frame failed')
  * 
  */
-  __pyx_t_6 = ((-1L == __pyx_v_r) != 0);
-  if (unlikely(__pyx_t_6)) {
+  __pyx_t_1 = ((-1L == __pyx_v_r) != 0);
+  if (unlikely(__pyx_t_1)) {
 
-    /* "pyv4l2/camera.pyx":251
+    /* "pyv4l2/camera.pyx":253
  * 
  *         if -1 == r:
  *             raise CameraError('Waiting for frame failed')             # <<<<<<<<<<<<<<
  * 
  *         memset(&self.buf, 0, sizeof(self.buf))
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 251, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 253, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = NULL;
+    __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_3)) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_5)) {
         PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_4, function);
       }
     }
-    __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_kp_u_Waiting_for_frame_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u_Waiting_for_frame_failed);
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 251, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_kp_u_Waiting_for_frame_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u_Waiting_for_frame_failed);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 253, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 251, __pyx_L1_error)
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(0, 253, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":250
+    /* "pyv4l2/camera.pyx":252
  *             r = select(self.fd + 1, &self.fds, NULL, NULL, &self.tv)
  * 
  *         if -1 == r:             # <<<<<<<<<<<<<<
@@ -5076,7 +5007,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   }
 
-  /* "pyv4l2/camera.pyx":253
+  /* "pyv4l2/camera.pyx":255
  *             raise CameraError('Waiting for frame failed')
  * 
  *         memset(&self.buf, 0, sizeof(self.buf))             # <<<<<<<<<<<<<<
@@ -5085,7 +5016,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   (void)(memset((&__pyx_v_self->buf), 0, (sizeof(__pyx_v_self->buf))));
 
-  /* "pyv4l2/camera.pyx":254
+  /* "pyv4l2/camera.pyx":256
  * 
  *         memset(&self.buf, 0, sizeof(self.buf))
  *         self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE             # <<<<<<<<<<<<<<
@@ -5094,7 +5025,7 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   __pyx_v_self->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-  /* "pyv4l2/camera.pyx":255
+  /* "pyv4l2/camera.pyx":257
  *         memset(&self.buf, 0, sizeof(self.buf))
  *         self.buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *         self.buf.memory = V4L2_MEMORY_MMAP             # <<<<<<<<<<<<<<
@@ -5103,45 +5034,45 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   __pyx_v_self->buf.memory = V4L2_MEMORY_MMAP;
 
-  /* "pyv4l2/camera.pyx":257
+  /* "pyv4l2/camera.pyx":259
  *         self.buf.memory = V4L2_MEMORY_MMAP
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_DQBUF, &self.buf):             # <<<<<<<<<<<<<<
  *             raise CameraError('Retrieving frame failed')
  * 
  */
-  __pyx_t_6 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_DQBUF, (&__pyx_v_self->buf))) != 0);
-  if (unlikely(__pyx_t_6)) {
+  __pyx_t_1 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_DQBUF, (&__pyx_v_self->buf))) != 0);
+  if (unlikely(__pyx_t_1)) {
 
-    /* "pyv4l2/camera.pyx":258
+    /* "pyv4l2/camera.pyx":260
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_DQBUF, &self.buf):
  *             raise CameraError('Retrieving frame failed')             # <<<<<<<<<<<<<<
  * 
  *         self.frame_data = <unsigned char *>self.buffers[self.buf.index].start
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 258, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 260, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = NULL;
+    __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_3)) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_5)) {
         PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_4, function);
       }
     }
-    __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_kp_u_Retrieving_frame_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u_Retrieving_frame_failed);
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 258, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_kp_u_Retrieving_frame_failed) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u_Retrieving_frame_failed);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 260, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 258, __pyx_L1_error)
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(0, 260, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":257
+    /* "pyv4l2/camera.pyx":259
  *         self.buf.memory = V4L2_MEMORY_MMAP
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_DQBUF, &self.buf):             # <<<<<<<<<<<<<<
@@ -5150,55 +5081,64 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   }
 
-  /* "pyv4l2/camera.pyx":260
+  /* "pyv4l2/camera.pyx":262
  *             raise CameraError('Retrieving frame failed')
  * 
  *         self.frame_data = <unsigned char *>self.buffers[self.buf.index].start             # <<<<<<<<<<<<<<
+ *         self.timestamp = self.buf.timestamp.tv_sec * 1000000 + self.buf.timestamp.tv_usec
  * 
- *         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):
  */
   __pyx_v_self->frame_data = ((unsigned char *)(__pyx_v_self->buffers[__pyx_v_self->buf.index]).start);
 
-  /* "pyv4l2/camera.pyx":262
+  /* "pyv4l2/camera.pyx":263
+ * 
  *         self.frame_data = <unsigned char *>self.buffers[self.buf.index].start
+ *         self.timestamp = self.buf.timestamp.tv_sec * 1000000 + self.buf.timestamp.tv_usec             # <<<<<<<<<<<<<<
+ * 
+ *         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):
+ */
+  __pyx_v_self->timestamp = ((__pyx_v_self->buf.timestamp.tv_sec * 0xF4240) + __pyx_v_self->buf.timestamp.tv_usec);
+
+  /* "pyv4l2/camera.pyx":265
+ *         self.timestamp = self.buf.timestamp.tv_sec * 1000000 + self.buf.timestamp.tv_usec
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):             # <<<<<<<<<<<<<<
  *             raise CameraError('Exchanging buffer with device failed')
  * 
  */
-  __pyx_t_6 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QBUF, (&__pyx_v_self->buf))) != 0);
-  if (unlikely(__pyx_t_6)) {
+  __pyx_t_1 = ((-1L == __pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_QBUF, (&__pyx_v_self->buf))) != 0);
+  if (unlikely(__pyx_t_1)) {
 
-    /* "pyv4l2/camera.pyx":263
+    /* "pyv4l2/camera.pyx":266
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):
  *             raise CameraError('Exchanging buffer with device failed')             # <<<<<<<<<<<<<<
  * 
  *         frame = np.frombuffer(self.frame_data[:self.frame_size], dtype=np.uint8)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 263, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_CameraError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 266, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = NULL;
+    __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_3)) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_5)) {
         PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_4, function);
       }
     }
-    __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_kp_u_Exchanging_buffer_with_device_fa) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u_Exchanging_buffer_with_device_fa);
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 263, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_kp_u_Exchanging_buffer_with_device_fa) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u_Exchanging_buffer_with_device_fa);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 266, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 263, __pyx_L1_error)
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(0, 266, __pyx_L1_error)
 
-    /* "pyv4l2/camera.pyx":262
- *         self.frame_data = <unsigned char *>self.buffers[self.buf.index].start
+    /* "pyv4l2/camera.pyx":265
+ *         self.timestamp = self.buf.timestamp.tv_sec * 1000000 + self.buf.timestamp.tv_usec
  * 
  *         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):             # <<<<<<<<<<<<<<
  *             raise CameraError('Exchanging buffer with device failed')
@@ -5206,102 +5146,102 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
  */
   }
 
-  /* "pyv4l2/camera.pyx":265
+  /* "pyv4l2/camera.pyx":268
  *             raise CameraError('Exchanging buffer with device failed')
  * 
  *         frame = np.frombuffer(self.frame_data[:self.frame_size], dtype=np.uint8)             # <<<<<<<<<<<<<<
  *         return frame.reshape((self.height, self.width))
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyBytes_FromStringAndSize(((const char*)__pyx_v_self->frame_data) + 0, __pyx_v_self->frame_size - 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 265, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_5);
-  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5);
-  __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_uint8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyBytes_FromStringAndSize(((const char*)__pyx_v_self->frame_data) + 0, __pyx_v_self->frame_size - 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3);
+  __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_uint8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 265, __pyx_L1_error)
-  __Pyx_DECREF_SET(__pyx_v_frame, ((PyArrayObject *)__pyx_t_1));
-  __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 268, __pyx_L1_error)
+  __pyx_v_frame = ((PyArrayObject *)__pyx_t_7);
+  __pyx_t_7 = 0;
 
-  /* "pyv4l2/camera.pyx":266
+  /* "pyv4l2/camera.pyx":269
  * 
  *         frame = np.frombuffer(self.frame_data[:self.frame_size], dtype=np.uint8)
  *         return frame.reshape((self.height, self.width))             # <<<<<<<<<<<<<<
  * 
- *     cpdef __u8 read_ISPreg(self, __u32 isp_add):
+ *     def get_frame(self):
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_frame), __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 266, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->height); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 266, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_frame), __pyx_n_s_reshape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 269, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->width); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 266, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->height); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->width); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 269, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 266, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_3);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_4);
-  PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_4);
-  __pyx_t_3 = 0;
+  PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_4);
+  __pyx_t_5 = 0;
   __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_5);
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
     if (likely(__pyx_t_4)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
       __Pyx_INCREF(__pyx_t_4);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_5, function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
     }
   }
-  __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_2);
+  __pyx_t_7 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_6);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 266, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 266, __pyx_L1_error)
-  __pyx_r = ((PyArrayObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 269, __pyx_L1_error)
+  __pyx_r = ((PyArrayObject *)__pyx_t_7);
+  __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "pyv4l2/camera.pyx":234
+  /* "pyv4l2/camera.pyx":235
  *                 raise CameraError('Getting control')
  * 
- *     cpdef np.ndarray[np.uint8_t, ndim=2] get_frame(self):             # <<<<<<<<<<<<<<
+ *     cdef np.ndarray[np.uint8_t, ndim=2] _get_frame(self):             # <<<<<<<<<<<<<<
  *         FD_ZERO(&self.fds)
  *         FD_SET(self.fd, &self.fds)
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyv4l2.camera.Camera.get_frame", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_AddTraceback("pyv4l2.camera.Camera._get_frame", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_frame);
@@ -5309,6 +5249,14 @@ static PyArrayObject *__pyx_f_6pyv4l2_6camera_6Camera_get_frame(struct __pyx_obj
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
+
+/* "pyv4l2/camera.pyx":271
+ *         return frame.reshape((self.height, self.width))
+ * 
+ *     def get_frame(self):             # <<<<<<<<<<<<<<
+ *         frame = np.zeros((self.height, self.width), dtype=np.uint8)
+ *         frame = self._get_frame()
+ */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_9get_frame(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
@@ -5324,30 +5272,134 @@ static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_9get_frame(PyObject *__pyx_v_s
 }
 
 static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_8get_frame(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
+  PyObject *__pyx_v_frame = NULL;
+  unsigned long __pyx_v_timestamp;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  unsigned long __pyx_t_6;
   __Pyx_RefNannySetupContext("get_frame", 0);
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_6pyv4l2_6camera_6Camera_get_frame(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
+
+  /* "pyv4l2/camera.pyx":272
+ * 
+ *     def get_frame(self):
+ *         frame = np.zeros((self.height, self.width), dtype=np.uint8)             # <<<<<<<<<<<<<<
+ *         frame = self._get_frame()
+ *         timestamp = self.timestamp
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 272, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->height); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->width); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_3);
   __pyx_t_1 = 0;
+  __pyx_t_3 = 0;
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_4);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
+  __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_uint8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_v_frame = __pyx_t_5;
+  __pyx_t_5 = 0;
+
+  /* "pyv4l2/camera.pyx":273
+ *     def get_frame(self):
+ *         frame = np.zeros((self.height, self.width), dtype=np.uint8)
+ *         frame = self._get_frame()             # <<<<<<<<<<<<<<
+ *         timestamp = self.timestamp
+ *         return frame, timestamp
+ */
+  __pyx_t_5 = ((PyObject *)((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->_get_frame(__pyx_v_self)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF_SET(__pyx_v_frame, __pyx_t_5);
+  __pyx_t_5 = 0;
+
+  /* "pyv4l2/camera.pyx":274
+ *         frame = np.zeros((self.height, self.width), dtype=np.uint8)
+ *         frame = self._get_frame()
+ *         timestamp = self.timestamp             # <<<<<<<<<<<<<<
+ *         return frame, timestamp
+ * 
+ */
+  __pyx_t_6 = __pyx_v_self->timestamp;
+  __pyx_v_timestamp = __pyx_t_6;
+
+  /* "pyv4l2/camera.pyx":275
+ *         frame = self._get_frame()
+ *         timestamp = self.timestamp
+ *         return frame, timestamp             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef __u8 read_ISPreg(self, __u32 isp_add):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_5 = __Pyx_PyInt_From_unsigned_long(__pyx_v_timestamp); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 275, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 275, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_INCREF(__pyx_v_frame);
+  __Pyx_GIVEREF(__pyx_v_frame);
+  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_frame);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5);
+  __pyx_t_5 = 0;
+  __pyx_r = __pyx_t_4;
+  __pyx_t_4 = 0;
   goto __pyx_L0;
+
+  /* "pyv4l2/camera.pyx":271
+ *         return frame.reshape((self.height, self.width))
+ * 
+ *     def get_frame(self):             # <<<<<<<<<<<<<<
+ *         frame = np.zeros((self.height, self.width), dtype=np.uint8)
+ *         frame = self._get_frame()
+ */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   __Pyx_AddTraceback("pyv4l2.camera.Camera.get_frame", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_frame);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":268
- *         return frame.reshape((self.height, self.width))
+/* "pyv4l2/camera.pyx":277
+ *         return frame, timestamp
  * 
  *     cpdef __u8 read_ISPreg(self, __u32 isp_add):             # <<<<<<<<<<<<<<
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
@@ -5374,10 +5426,10 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_read_ISPreg); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 268, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_read_ISPreg); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 277, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_11read_ISPreg)) {
-        __pyx_t_3 = __Pyx_PyInt_From___u32(__pyx_v_isp_add); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From___u32(__pyx_v_isp_add); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 277, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -5393,10 +5445,10 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
         __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 268, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 277, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_6 = __Pyx_PyInt_As___u8(__pyx_t_2); if (unlikely((__pyx_t_6 == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_As___u8(__pyx_t_2); if (unlikely((__pyx_t_6 == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 277, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5415,7 +5467,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
     #endif
   }
 
-  /* "pyv4l2/camera.pyx":269
+  /* "pyv4l2/camera.pyx":278
  * 
  *     cpdef __u8 read_ISPreg(self, __u32 isp_add):
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR             # <<<<<<<<<<<<<<
@@ -5424,7 +5476,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   __pyx_v_6pyv4l2_6camera_xu_query.query = __pyx_e_6pyv4l2_6camera_UVC_SET_CUR;
 
-  /* "pyv4l2/camera.pyx":271
+  /* "pyv4l2/camera.pyx":280
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
  * 
  *         query_value[0] = 0x51             # <<<<<<<<<<<<<<
@@ -5433,7 +5485,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[0]) = 0x51;
 
-  /* "pyv4l2/camera.pyx":272
+  /* "pyv4l2/camera.pyx":281
  * 
  *         query_value[0] = 0x51
  *         query_value[1] = 0xa2             # <<<<<<<<<<<<<<
@@ -5442,7 +5494,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[1]) = 0xa2;
 
-  /* "pyv4l2/camera.pyx":273
+  /* "pyv4l2/camera.pyx":282
  *         query_value[0] = 0x51
  *         query_value[1] = 0xa2
  *         query_value[2] = 0x6c             # <<<<<<<<<<<<<<
@@ -5451,7 +5503,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[2]) = 0x6c;
 
-  /* "pyv4l2/camera.pyx":274
+  /* "pyv4l2/camera.pyx":283
  *         query_value[1] = 0xa2
  *         query_value[2] = 0x6c
  *         query_value[3] = 0x04             # <<<<<<<<<<<<<<
@@ -5460,7 +5512,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[3]) = 0x04;
 
-  /* "pyv4l2/camera.pyx":275
+  /* "pyv4l2/camera.pyx":284
  *         query_value[2] = 0x6c
  *         query_value[3] = 0x04
  *         query_value[4] = 0x01             # <<<<<<<<<<<<<<
@@ -5469,7 +5521,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[4]) = 0x01;
 
-  /* "pyv4l2/camera.pyx":276
+  /* "pyv4l2/camera.pyx":285
  *         query_value[3] = 0x04
  *         query_value[4] = 0x01
  *         query_value[5] = isp_add>>24             # <<<<<<<<<<<<<<
@@ -5478,7 +5530,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[5]) = (__pyx_v_isp_add >> 24);
 
-  /* "pyv4l2/camera.pyx":277
+  /* "pyv4l2/camera.pyx":286
  *         query_value[4] = 0x01
  *         query_value[5] = isp_add>>24
  *         query_value[6] = isp_add>>16             # <<<<<<<<<<<<<<
@@ -5487,7 +5539,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[6]) = (__pyx_v_isp_add >> 16);
 
-  /* "pyv4l2/camera.pyx":278
+  /* "pyv4l2/camera.pyx":287
  *         query_value[5] = isp_add>>24
  *         query_value[6] = isp_add>>16
  *         query_value[7] = isp_add>>8             # <<<<<<<<<<<<<<
@@ -5496,7 +5548,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[7]) = (__pyx_v_isp_add >> 8);
 
-  /* "pyv4l2/camera.pyx":279
+  /* "pyv4l2/camera.pyx":288
  *         query_value[6] = isp_add>>16
  *         query_value[7] = isp_add>>8
  *         query_value[8] = isp_add&0xff             # <<<<<<<<<<<<<<
@@ -5505,7 +5557,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[8]) = (__pyx_v_isp_add & 0xff);
 
-  /* "pyv4l2/camera.pyx":280
+  /* "pyv4l2/camera.pyx":289
  *         query_value[7] = isp_add>>8
  *         query_value[8] = isp_add&0xff
  *         query_value[9] = 0x90             # <<<<<<<<<<<<<<
@@ -5514,7 +5566,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[9]) = 0x90;
 
-  /* "pyv4l2/camera.pyx":281
+  /* "pyv4l2/camera.pyx":290
  *         query_value[8] = isp_add&0xff
  *         query_value[9] = 0x90
  *         query_value[10] = 0x01             # <<<<<<<<<<<<<<
@@ -5523,7 +5575,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[10]) = 0x01;
 
-  /* "pyv4l2/camera.pyx":282
+  /* "pyv4l2/camera.pyx":291
  *         query_value[9] = 0x90
  *         query_value[10] = 0x01
  *         query_value[11] = 0x00             # <<<<<<<<<<<<<<
@@ -5532,7 +5584,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[11]) = 0x00;
 
-  /* "pyv4l2/camera.pyx":283
+  /* "pyv4l2/camera.pyx":292
  *         query_value[10] = 0x01
  *         query_value[11] = 0x00
  *         query_value[12] = 0x01             # <<<<<<<<<<<<<<
@@ -5541,7 +5593,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (__pyx_v_6pyv4l2_6camera_query_value[12]) = 0x01;
 
-  /* "pyv4l2/camera.pyx":285
+  /* "pyv4l2/camera.pyx":294
  *         query_value[12] = 0x01
  * 
  *         ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query)             # <<<<<<<<<<<<<<
@@ -5550,7 +5602,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (void)(ioctl(__pyx_v_self->fd, UVCIOC_CTRL_QUERY, (&__pyx_v_6pyv4l2_6camera_xu_query)));
 
-  /* "pyv4l2/camera.pyx":286
+  /* "pyv4l2/camera.pyx":295
  * 
  *         ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query)
  *         sleep(1)             # <<<<<<<<<<<<<<
@@ -5559,7 +5611,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   (void)(sleep(1));
 
-  /* "pyv4l2/camera.pyx":288
+  /* "pyv4l2/camera.pyx":297
  *         sleep(1)
  * 
  *         xu_query.query = UVC_GET_CUR # UVC_GET_CUR             # <<<<<<<<<<<<<<
@@ -5568,7 +5620,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   __pyx_v_6pyv4l2_6camera_xu_query.query = __pyx_e_6pyv4l2_6camera_UVC_GET_CUR;
 
-  /* "pyv4l2/camera.pyx":289
+  /* "pyv4l2/camera.pyx":298
  * 
  *         xu_query.query = UVC_GET_CUR # UVC_GET_CUR
  *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))             # <<<<<<<<<<<<<<
@@ -5577,7 +5629,7 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
  */
   __pyx_f_6pyv4l2_6camera_SAFE_IOCTL(ioctl(__pyx_v_self->fd, UVCIOC_CTRL_QUERY, (&__pyx_v_6pyv4l2_6camera_xu_query)));
 
-  /* "pyv4l2/camera.pyx":291
+  /* "pyv4l2/camera.pyx":300
  *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
  * 
  *         return query_value[17]             # <<<<<<<<<<<<<<
@@ -5587,8 +5639,8 @@ static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(struct __pyx_obj_6pyv4l2
   __pyx_r = (__pyx_v_6pyv4l2_6camera_query_value[17]);
   goto __pyx_L0;
 
-  /* "pyv4l2/camera.pyx":268
- *         return frame.reshape((self.height, self.width))
+  /* "pyv4l2/camera.pyx":277
+ *         return frame, timestamp
  * 
  *     cpdef __u8 read_ISPreg(self, __u32 isp_add):             # <<<<<<<<<<<<<<
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
@@ -5617,7 +5669,7 @@ static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_11read_ISPreg(PyObject *__pyx_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("read_ISPreg (wrapper)", 0);
   assert(__pyx_arg_isp_add); {
-    __pyx_v_isp_add = __Pyx_PyInt_As___u32(__pyx_arg_isp_add); if (unlikely((__pyx_v_isp_add == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L3_error)
+    __pyx_v_isp_add = __Pyx_PyInt_As___u32(__pyx_arg_isp_add); if (unlikely((__pyx_v_isp_add == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 277, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5638,7 +5690,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_10read_ISPreg(struct __pyx_obj
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("read_ISPreg", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From___u8(__pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(__pyx_v_self, __pyx_v_isp_add, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From___u8(__pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg(__pyx_v_self, __pyx_v_isp_add, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 277, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5655,12 +5707,12 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_10read_ISPreg(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":293
+/* "pyv4l2/camera.pyx":302
  *         return query_value[17]
  * 
  *     cpdef void write_ISPreg(self, __u32 isp_add, __u8 isp_val):             # <<<<<<<<<<<<<<
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
- *         query_value[0] = 0x50;
+ * 
  */
 
 static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_13write_ISPreg(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
@@ -5684,12 +5736,12 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_write_ISPreg); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_write_ISPreg); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 302, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_13write_ISPreg)) {
-        __pyx_t_3 = __Pyx_PyInt_From___u32(__pyx_v_isp_add); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 293, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From___u32(__pyx_v_isp_add); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 302, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = __Pyx_PyInt_From___u8(__pyx_v_isp_val); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyInt_From___u8(__pyx_v_isp_val); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_5 = __pyx_t_1; __pyx_t_6 = NULL;
@@ -5707,7 +5759,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5717,7 +5769,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5725,7 +5777,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l
         } else
         #endif
         {
-          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 293, __pyx_L1_error)
+          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 302, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_8);
           if (__pyx_t_6) {
             __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -5736,7 +5788,7 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l
           PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_4);
           __pyx_t_3 = 0;
           __pyx_t_4 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         }
@@ -5758,156 +5810,156 @@ static void __pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(struct __pyx_obj_6pyv4l
     #endif
   }
 
-  /* "pyv4l2/camera.pyx":294
+  /* "pyv4l2/camera.pyx":303
  * 
  *     cpdef void write_ISPreg(self, __u32 isp_add, __u8 isp_val):
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR             # <<<<<<<<<<<<<<
- *         query_value[0] = 0x50;
- *         query_value[1] = 0xa2;
+ * 
+ *         query_value[0] = 0x50
  */
   __pyx_v_6pyv4l2_6camera_xu_query.query = __pyx_e_6pyv4l2_6camera_UVC_SET_CUR;
 
-  /* "pyv4l2/camera.pyx":295
- *     cpdef void write_ISPreg(self, __u32 isp_add, __u8 isp_val):
+  /* "pyv4l2/camera.pyx":305
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
- *         query_value[0] = 0x50;             # <<<<<<<<<<<<<<
- *         query_value[1] = 0xa2;
- *         query_value[2] = 0x6c;
+ * 
+ *         query_value[0] = 0x50             # <<<<<<<<<<<<<<
+ *         query_value[1] = 0xa2
+ *         query_value[2] = 0x6c
  */
   (__pyx_v_6pyv4l2_6camera_query_value[0]) = 0x50;
 
-  /* "pyv4l2/camera.pyx":296
- *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
- *         query_value[0] = 0x50;
- *         query_value[1] = 0xa2;             # <<<<<<<<<<<<<<
- *         query_value[2] = 0x6c;
- *         query_value[3] = 0x04;
+  /* "pyv4l2/camera.pyx":306
+ * 
+ *         query_value[0] = 0x50
+ *         query_value[1] = 0xa2             # <<<<<<<<<<<<<<
+ *         query_value[2] = 0x6c
+ *         query_value[3] = 0x04
  */
   (__pyx_v_6pyv4l2_6camera_query_value[1]) = 0xa2;
 
-  /* "pyv4l2/camera.pyx":297
- *         query_value[0] = 0x50;
- *         query_value[1] = 0xa2;
- *         query_value[2] = 0x6c;             # <<<<<<<<<<<<<<
- *         query_value[3] = 0x04;
- *         query_value[4] = 0x01;
+  /* "pyv4l2/camera.pyx":307
+ *         query_value[0] = 0x50
+ *         query_value[1] = 0xa2
+ *         query_value[2] = 0x6c             # <<<<<<<<<<<<<<
+ *         query_value[3] = 0x04
+ *         query_value[4] = 0x01
  */
   (__pyx_v_6pyv4l2_6camera_query_value[2]) = 0x6c;
 
-  /* "pyv4l2/camera.pyx":298
- *         query_value[1] = 0xa2;
- *         query_value[2] = 0x6c;
- *         query_value[3] = 0x04;             # <<<<<<<<<<<<<<
- *         query_value[4] = 0x01;
+  /* "pyv4l2/camera.pyx":308
+ *         query_value[1] = 0xa2
+ *         query_value[2] = 0x6c
+ *         query_value[3] = 0x04             # <<<<<<<<<<<<<<
+ *         query_value[4] = 0x01
  *         #register address
  */
   (__pyx_v_6pyv4l2_6camera_query_value[3]) = 0x04;
 
-  /* "pyv4l2/camera.pyx":299
- *         query_value[2] = 0x6c;
- *         query_value[3] = 0x04;
- *         query_value[4] = 0x01;             # <<<<<<<<<<<<<<
+  /* "pyv4l2/camera.pyx":309
+ *         query_value[2] = 0x6c
+ *         query_value[3] = 0x04
+ *         query_value[4] = 0x01             # <<<<<<<<<<<<<<
  *         #register address
- *         query_value[5] = isp_add>>24;
+ *         query_value[5] = isp_add>>24
  */
   (__pyx_v_6pyv4l2_6camera_query_value[4]) = 0x01;
 
-  /* "pyv4l2/camera.pyx":301
- *         query_value[4] = 0x01;
+  /* "pyv4l2/camera.pyx":311
+ *         query_value[4] = 0x01
  *         #register address
- *         query_value[5] = isp_add>>24;             # <<<<<<<<<<<<<<
- *         query_value[6] = isp_add>>16;
- *         query_value[7] = isp_add>>8;
+ *         query_value[5] = isp_add>>24             # <<<<<<<<<<<<<<
+ *         query_value[6] = isp_add>>16
+ *         query_value[7] = isp_add>>8
  */
   (__pyx_v_6pyv4l2_6camera_query_value[5]) = (__pyx_v_isp_add >> 24);
 
-  /* "pyv4l2/camera.pyx":302
+  /* "pyv4l2/camera.pyx":312
  *         #register address
- *         query_value[5] = isp_add>>24;
- *         query_value[6] = isp_add>>16;             # <<<<<<<<<<<<<<
- *         query_value[7] = isp_add>>8;
- *         query_value[8] = isp_add&0xff;
+ *         query_value[5] = isp_add>>24
+ *         query_value[6] = isp_add>>16             # <<<<<<<<<<<<<<
+ *         query_value[7] = isp_add>>8
+ *         query_value[8] = isp_add&0xff
  */
   (__pyx_v_6pyv4l2_6camera_query_value[6]) = (__pyx_v_isp_add >> 16);
 
-  /* "pyv4l2/camera.pyx":303
- *         query_value[5] = isp_add>>24;
- *         query_value[6] = isp_add>>16;
- *         query_value[7] = isp_add>>8;             # <<<<<<<<<<<<<<
- *         query_value[8] = isp_add&0xff;
+  /* "pyv4l2/camera.pyx":313
+ *         query_value[5] = isp_add>>24
+ *         query_value[6] = isp_add>>16
+ *         query_value[7] = isp_add>>8             # <<<<<<<<<<<<<<
+ *         query_value[8] = isp_add&0xff
  * 
  */
   (__pyx_v_6pyv4l2_6camera_query_value[7]) = (__pyx_v_isp_add >> 8);
 
-  /* "pyv4l2/camera.pyx":304
- *         query_value[6] = isp_add>>16;
- *         query_value[7] = isp_add>>8;
- *         query_value[8] = isp_add&0xff;             # <<<<<<<<<<<<<<
+  /* "pyv4l2/camera.pyx":314
+ *         query_value[6] = isp_add>>16
+ *         query_value[7] = isp_add>>8
+ *         query_value[8] = isp_add&0xff             # <<<<<<<<<<<<<<
  * 
- *         query_value[9] = 0x90;
+ *         query_value[9] = 0x90
  */
   (__pyx_v_6pyv4l2_6camera_query_value[8]) = (__pyx_v_isp_add & 0xff);
 
-  /* "pyv4l2/camera.pyx":306
- *         query_value[8] = isp_add&0xff;
+  /* "pyv4l2/camera.pyx":316
+ *         query_value[8] = isp_add&0xff
  * 
- *         query_value[9] = 0x90;             # <<<<<<<<<<<<<<
- *         query_value[10] = 0x01;
- *         query_value[11] = 0x00;
+ *         query_value[9] = 0x90             # <<<<<<<<<<<<<<
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00
  */
   (__pyx_v_6pyv4l2_6camera_query_value[9]) = 0x90;
 
-  /* "pyv4l2/camera.pyx":307
+  /* "pyv4l2/camera.pyx":317
  * 
- *         query_value[9] = 0x90;
- *         query_value[10] = 0x01;             # <<<<<<<<<<<<<<
- *         query_value[11] = 0x00;
- *         query_value[12] = 0x01;
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01             # <<<<<<<<<<<<<<
+ *         query_value[11] = 0x00
+ *         query_value[12] = 0x01
  */
   (__pyx_v_6pyv4l2_6camera_query_value[10]) = 0x01;
 
-  /* "pyv4l2/camera.pyx":308
- *         query_value[9] = 0x90;
- *         query_value[10] = 0x01;
- *         query_value[11] = 0x00;             # <<<<<<<<<<<<<<
- *         query_value[12] = 0x01;
+  /* "pyv4l2/camera.pyx":318
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[12] = 0x01
  * 
  */
   (__pyx_v_6pyv4l2_6camera_query_value[11]) = 0x00;
 
-  /* "pyv4l2/camera.pyx":309
- *         query_value[10] = 0x01;
- *         query_value[11] = 0x00;
- *         query_value[12] = 0x01;             # <<<<<<<<<<<<<<
+  /* "pyv4l2/camera.pyx":319
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00
+ *         query_value[12] = 0x01             # <<<<<<<<<<<<<<
  * 
- *         query_value[16] = isp_val;
+ *         query_value[16] = isp_val
  */
   (__pyx_v_6pyv4l2_6camera_query_value[12]) = 0x01;
 
-  /* "pyv4l2/camera.pyx":311
- *         query_value[12] = 0x01;
+  /* "pyv4l2/camera.pyx":321
+ *         query_value[12] = 0x01
  * 
- *         query_value[16] = isp_val;             # <<<<<<<<<<<<<<
+ *         query_value[16] = isp_val             # <<<<<<<<<<<<<<
  * 
- *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query));
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
  */
   (__pyx_v_6pyv4l2_6camera_query_value[16]) = __pyx_v_isp_val;
 
-  /* "pyv4l2/camera.pyx":313
- *         query_value[16] = isp_val;
+  /* "pyv4l2/camera.pyx":323
+ *         query_value[16] = isp_val
  * 
- *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query));             # <<<<<<<<<<<<<<
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))             # <<<<<<<<<<<<<<
  * 
- * 
+ *     cdef __u8 read_sensor_reg(self, __u16 sensor_add, __u8 i2c):
  */
   __pyx_f_6pyv4l2_6camera_SAFE_IOCTL(ioctl(__pyx_v_self->fd, UVCIOC_CTRL_QUERY, (&__pyx_v_6pyv4l2_6camera_xu_query)));
 
-  /* "pyv4l2/camera.pyx":293
+  /* "pyv4l2/camera.pyx":302
  *         return query_value[17]
  * 
  *     cpdef void write_ISPreg(self, __u32 isp_add, __u8 isp_val):             # <<<<<<<<<<<<<<
  *         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
- *         query_value[0] = 0x50;
+ * 
  */
 
   /* function exit code */
@@ -5956,11 +6008,11 @@ static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_13write_ISPreg(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isp_val)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("write_ISPreg", 1, 2, 2, 1); __PYX_ERR(0, 293, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("write_ISPreg", 1, 2, 2, 1); __PYX_ERR(0, 302, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "write_ISPreg") < 0)) __PYX_ERR(0, 293, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "write_ISPreg") < 0)) __PYX_ERR(0, 302, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5968,12 +6020,12 @@ static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_13write_ISPreg(PyObject *__pyx
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_isp_add = __Pyx_PyInt_As___u32(values[0]); if (unlikely((__pyx_v_isp_add == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 293, __pyx_L3_error)
-    __pyx_v_isp_val = __Pyx_PyInt_As___u8(values[1]); if (unlikely((__pyx_v_isp_val == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 293, __pyx_L3_error)
+    __pyx_v_isp_add = __Pyx_PyInt_As___u32(values[0]); if (unlikely((__pyx_v_isp_add == ((__u32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 302, __pyx_L3_error)
+    __pyx_v_isp_val = __Pyx_PyInt_As___u8(values[1]); if (unlikely((__pyx_v_isp_val == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 302, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("write_ISPreg", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 293, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("write_ISPreg", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 302, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pyv4l2.camera.Camera.write_ISPreg", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5992,7 +6044,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_12write_ISPreg(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("write_ISPreg", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(__pyx_v_self, __pyx_v_isp_add, __pyx_v_isp_val, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg(__pyx_v_self, __pyx_v_isp_add, __pyx_v_isp_val, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6009,8 +6061,990 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_12write_ISPreg(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pyv4l2/camera.pyx":316
+/* "pyv4l2/camera.pyx":325
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
  * 
+ *     cdef __u8 read_sensor_reg(self, __u16 sensor_add, __u8 i2c):             # <<<<<<<<<<<<<<
+ *         xu_query.query = UVC_SET_CUR
+ * 
+ */
+
+static __u8 __pyx_f_6pyv4l2_6camera_6Camera_read_sensor_reg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u16 __pyx_v_sensor_add, __u8 __pyx_v_i2c) {
+  __u8 __pyx_r;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  __Pyx_RefNannySetupContext("read_sensor_reg", 0);
+
+  /* "pyv4l2/camera.pyx":326
+ * 
+ *     cdef __u8 read_sensor_reg(self, __u16 sensor_add, __u8 i2c):
+ *         xu_query.query = UVC_SET_CUR             # <<<<<<<<<<<<<<
+ * 
+ *         query_value[0] = 0x51
+ */
+  __pyx_v_6pyv4l2_6camera_xu_query.query = __pyx_e_6pyv4l2_6camera_UVC_SET_CUR;
+
+  /* "pyv4l2/camera.pyx":328
+ *         xu_query.query = UVC_SET_CUR
+ * 
+ *         query_value[0] = 0x51             # <<<<<<<<<<<<<<
+ * 
+ *         if(i2c):
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[0]) = 0x51;
+
+  /* "pyv4l2/camera.pyx":330
+ *         query_value[0] = 0x51
+ * 
+ *         if(i2c):             # <<<<<<<<<<<<<<
+ *             query_value[1] = 0xa3
+ *         else:
+ */
+  __pyx_t_1 = (__pyx_v_i2c != 0);
+  if (__pyx_t_1) {
+
+    /* "pyv4l2/camera.pyx":331
+ * 
+ *         if(i2c):
+ *             query_value[1] = 0xa3             # <<<<<<<<<<<<<<
+ *         else:
+ *             query_value[1] = 0xa5
+ */
+    (__pyx_v_6pyv4l2_6camera_query_value[1]) = 0xa3;
+
+    /* "pyv4l2/camera.pyx":330
+ *         query_value[0] = 0x51
+ * 
+ *         if(i2c):             # <<<<<<<<<<<<<<
+ *             query_value[1] = 0xa3
+ *         else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "pyv4l2/camera.pyx":333
+ *             query_value[1] = 0xa3
+ *         else:
+ *             query_value[1] = 0xa5             # <<<<<<<<<<<<<<
+ * 
+ *         query_value[2] = 0xc0
+ */
+  /*else*/ {
+    (__pyx_v_6pyv4l2_6camera_query_value[1]) = 0xa5;
+  }
+  __pyx_L3:;
+
+  /* "pyv4l2/camera.pyx":335
+ *             query_value[1] = 0xa5
+ * 
+ *         query_value[2] = 0xc0             # <<<<<<<<<<<<<<
+ *         query_value[3] = 0x02
+ *         query_value[4] = 0x01
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[2]) = 0xc0;
+
+  /* "pyv4l2/camera.pyx":336
+ * 
+ *         query_value[2] = 0xc0
+ *         query_value[3] = 0x02             # <<<<<<<<<<<<<<
+ *         query_value[4] = 0x01
+ *         query_value[5] = 0x00
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[3]) = 0x02;
+
+  /* "pyv4l2/camera.pyx":337
+ *         query_value[2] = 0xc0
+ *         query_value[3] = 0x02
+ *         query_value[4] = 0x01             # <<<<<<<<<<<<<<
+ *         query_value[5] = 0x00
+ *         query_value[6] = 0x00
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[4]) = 0x01;
+
+  /* "pyv4l2/camera.pyx":338
+ *         query_value[3] = 0x02
+ *         query_value[4] = 0x01
+ *         query_value[5] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[6] = 0x00
+ *         query_value[7] = sensor_add>>8
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[5]) = 0x00;
+
+  /* "pyv4l2/camera.pyx":339
+ *         query_value[4] = 0x01
+ *         query_value[5] = 0x00
+ *         query_value[6] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[7] = sensor_add>>8
+ *         query_value[8] = sensor_add&0xff
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[6]) = 0x00;
+
+  /* "pyv4l2/camera.pyx":340
+ *         query_value[5] = 0x00
+ *         query_value[6] = 0x00
+ *         query_value[7] = sensor_add>>8             # <<<<<<<<<<<<<<
+ *         query_value[8] = sensor_add&0xff
+ *         query_value[9] = 0x90
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[7]) = (__pyx_v_sensor_add >> 8);
+
+  /* "pyv4l2/camera.pyx":341
+ *         query_value[6] = 0x00
+ *         query_value[7] = sensor_add>>8
+ *         query_value[8] = sensor_add&0xff             # <<<<<<<<<<<<<<
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[8]) = (__pyx_v_sensor_add & 0xff);
+
+  /* "pyv4l2/camera.pyx":342
+ *         query_value[7] = sensor_add>>8
+ *         query_value[8] = sensor_add&0xff
+ *         query_value[9] = 0x90             # <<<<<<<<<<<<<<
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[9]) = 0x90;
+
+  /* "pyv4l2/camera.pyx":343
+ *         query_value[8] = sensor_add&0xff
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01             # <<<<<<<<<<<<<<
+ *         query_value[11] = 0x00
+ *         query_value[12] = 0x01
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[10]) = 0x01;
+
+  /* "pyv4l2/camera.pyx":344
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[12] = 0x01
+ * 
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[11]) = 0x00;
+
+  /* "pyv4l2/camera.pyx":345
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00
+ *         query_value[12] = 0x01             # <<<<<<<<<<<<<<
+ * 
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[12]) = 0x01;
+
+  /* "pyv4l2/camera.pyx":347
+ *         query_value[12] = 0x01
+ * 
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))             # <<<<<<<<<<<<<<
+ *         sleep(1)
+ * 
+ */
+  __pyx_f_6pyv4l2_6camera_SAFE_IOCTL(ioctl(__pyx_v_self->fd, UVCIOC_CTRL_QUERY, (&__pyx_v_6pyv4l2_6camera_xu_query)));
+
+  /* "pyv4l2/camera.pyx":348
+ * 
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ *         sleep(1)             # <<<<<<<<<<<<<<
+ * 
+ *         xu_query.query = UVC_GET_CUR
+ */
+  (void)(sleep(1));
+
+  /* "pyv4l2/camera.pyx":350
+ *         sleep(1)
+ * 
+ *         xu_query.query = UVC_GET_CUR             # <<<<<<<<<<<<<<
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ *         return query_value[17]
+ */
+  __pyx_v_6pyv4l2_6camera_xu_query.query = __pyx_e_6pyv4l2_6camera_UVC_GET_CUR;
+
+  /* "pyv4l2/camera.pyx":351
+ * 
+ *         xu_query.query = UVC_GET_CUR
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))             # <<<<<<<<<<<<<<
+ *         return query_value[17]
+ * 
+ */
+  __pyx_f_6pyv4l2_6camera_SAFE_IOCTL(ioctl(__pyx_v_self->fd, UVCIOC_CTRL_QUERY, (&__pyx_v_6pyv4l2_6camera_xu_query)));
+
+  /* "pyv4l2/camera.pyx":352
+ *         xu_query.query = UVC_GET_CUR
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ *         return query_value[17]             # <<<<<<<<<<<<<<
+ * 
+ *     cdef void write_sensor_reg(self, __u16 sensor_add, __u8 sensor_val, __u8 i2c):
+ */
+  __pyx_r = (__pyx_v_6pyv4l2_6camera_query_value[17]);
+  goto __pyx_L0;
+
+  /* "pyv4l2/camera.pyx":325
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ * 
+ *     cdef __u8 read_sensor_reg(self, __u16 sensor_add, __u8 i2c):             # <<<<<<<<<<<<<<
+ *         xu_query.query = UVC_SET_CUR
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyv4l2/camera.pyx":354
+ *         return query_value[17]
+ * 
+ *     cdef void write_sensor_reg(self, __u16 sensor_add, __u8 sensor_val, __u8 i2c):             # <<<<<<<<<<<<<<
+ *         xu_query.query = UVC_SET_CUR
+ * 
+ */
+
+static void __pyx_f_6pyv4l2_6camera_6Camera_write_sensor_reg(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u16 __pyx_v_sensor_add, __u8 __pyx_v_sensor_val, __u8 __pyx_v_i2c) {
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  __Pyx_RefNannySetupContext("write_sensor_reg", 0);
+
+  /* "pyv4l2/camera.pyx":355
+ * 
+ *     cdef void write_sensor_reg(self, __u16 sensor_add, __u8 sensor_val, __u8 i2c):
+ *         xu_query.query = UVC_SET_CUR             # <<<<<<<<<<<<<<
+ * 
+ *         query_value[0] = 0x50
+ */
+  __pyx_v_6pyv4l2_6camera_xu_query.query = __pyx_e_6pyv4l2_6camera_UVC_SET_CUR;
+
+  /* "pyv4l2/camera.pyx":357
+ *         xu_query.query = UVC_SET_CUR
+ * 
+ *         query_value[0] = 0x50             # <<<<<<<<<<<<<<
+ * 
+ *         if(i2c):
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[0]) = 0x50;
+
+  /* "pyv4l2/camera.pyx":359
+ *         query_value[0] = 0x50
+ * 
+ *         if(i2c):             # <<<<<<<<<<<<<<
+ *             query_value[1] = 0xa3
+ *         else:
+ */
+  __pyx_t_1 = (__pyx_v_i2c != 0);
+  if (__pyx_t_1) {
+
+    /* "pyv4l2/camera.pyx":360
+ * 
+ *         if(i2c):
+ *             query_value[1] = 0xa3             # <<<<<<<<<<<<<<
+ *         else:
+ *             query_value[1] = 0xa5
+ */
+    (__pyx_v_6pyv4l2_6camera_query_value[1]) = 0xa3;
+
+    /* "pyv4l2/camera.pyx":359
+ *         query_value[0] = 0x50
+ * 
+ *         if(i2c):             # <<<<<<<<<<<<<<
+ *             query_value[1] = 0xa3
+ *         else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "pyv4l2/camera.pyx":362
+ *             query_value[1] = 0xa3
+ *         else:
+ *             query_value[1] = 0xa5             # <<<<<<<<<<<<<<
+ * 
+ *         query_value[2] = 0xc0
+ */
+  /*else*/ {
+    (__pyx_v_6pyv4l2_6camera_query_value[1]) = 0xa5;
+  }
+  __pyx_L3:;
+
+  /* "pyv4l2/camera.pyx":364
+ *             query_value[1] = 0xa5
+ * 
+ *         query_value[2] = 0xc0             # <<<<<<<<<<<<<<
+ *         query_value[3] = 0x02
+ *         query_value[4] = 0x01
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[2]) = 0xc0;
+
+  /* "pyv4l2/camera.pyx":365
+ * 
+ *         query_value[2] = 0xc0
+ *         query_value[3] = 0x02             # <<<<<<<<<<<<<<
+ *         query_value[4] = 0x01
+ * 
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[3]) = 0x02;
+
+  /* "pyv4l2/camera.pyx":366
+ *         query_value[2] = 0xc0
+ *         query_value[3] = 0x02
+ *         query_value[4] = 0x01             # <<<<<<<<<<<<<<
+ * 
+ *         # register address
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[4]) = 0x01;
+
+  /* "pyv4l2/camera.pyx":369
+ * 
+ *         # register address
+ *         query_value[5] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[6] = 0x00
+ *         query_value[7] = sensor_add>>8
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[5]) = 0x00;
+
+  /* "pyv4l2/camera.pyx":370
+ *         # register address
+ *         query_value[5] = 0x00
+ *         query_value[6] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[7] = sensor_add>>8
+ *         query_value[8] = sensor_add&0xff
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[6]) = 0x00;
+
+  /* "pyv4l2/camera.pyx":371
+ *         query_value[5] = 0x00
+ *         query_value[6] = 0x00
+ *         query_value[7] = sensor_add>>8             # <<<<<<<<<<<<<<
+ *         query_value[8] = sensor_add&0xff
+ * 
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[7]) = (__pyx_v_sensor_add >> 8);
+
+  /* "pyv4l2/camera.pyx":372
+ *         query_value[6] = 0x00
+ *         query_value[7] = sensor_add>>8
+ *         query_value[8] = sensor_add&0xff             # <<<<<<<<<<<<<<
+ * 
+ *         query_value[9] = 0x90
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[8]) = (__pyx_v_sensor_add & 0xff);
+
+  /* "pyv4l2/camera.pyx":374
+ *         query_value[8] = sensor_add&0xff
+ * 
+ *         query_value[9] = 0x90             # <<<<<<<<<<<<<<
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[9]) = 0x90;
+
+  /* "pyv4l2/camera.pyx":375
+ * 
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01             # <<<<<<<<<<<<<<
+ *         query_value[11] = 0x00
+ *         query_value[12] = 0x01
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[10]) = 0x01;
+
+  /* "pyv4l2/camera.pyx":376
+ *         query_value[9] = 0x90
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00             # <<<<<<<<<<<<<<
+ *         query_value[12] = 0x01
+ * 
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[11]) = 0x00;
+
+  /* "pyv4l2/camera.pyx":377
+ *         query_value[10] = 0x01
+ *         query_value[11] = 0x00
+ *         query_value[12] = 0x01             # <<<<<<<<<<<<<<
+ * 
+ *         query_value[16] = sensor_val
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[12]) = 0x01;
+
+  /* "pyv4l2/camera.pyx":379
+ *         query_value[12] = 0x01
+ * 
+ *         query_value[16] = sensor_val             # <<<<<<<<<<<<<<
+ * 
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ */
+  (__pyx_v_6pyv4l2_6camera_query_value[16]) = __pyx_v_sensor_val;
+
+  /* "pyv4l2/camera.pyx":381
+ *         query_value[16] = sensor_val
+ * 
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef __u8 get_exposure(self):
+ */
+  __pyx_f_6pyv4l2_6camera_SAFE_IOCTL(ioctl(__pyx_v_self->fd, UVCIOC_CTRL_QUERY, (&__pyx_v_6pyv4l2_6camera_xu_query)));
+
+  /* "pyv4l2/camera.pyx":354
+ *         return query_value[17]
+ * 
+ *     cdef void write_sensor_reg(self, __u16 sensor_add, __u8 sensor_val, __u8 i2c):             # <<<<<<<<<<<<<<
+ *         xu_query.query = UVC_SET_CUR
+ * 
+ */
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+/* "pyv4l2/camera.pyx":383
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ * 
+ *     cpdef __u8 get_exposure(self):             # <<<<<<<<<<<<<<
+ *         return self.read_sensor_reg(0x3501, 0)
+ * 
+ */
+
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_15get_exposure(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static __u8 __pyx_f_6pyv4l2_6camera_6Camera_get_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch) {
+  __u8 __pyx_r;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __u8 __pyx_t_5;
+  __Pyx_RefNannySetupContext("get_exposure", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_exposure); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 383, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_15get_exposure)) {
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          if (likely(__pyx_t_4)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+            __Pyx_INCREF(__pyx_t_4);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_3, function);
+          }
+        }
+        __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 383, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __pyx_t_5 = __Pyx_PyInt_As___u8(__pyx_t_2); if (unlikely((__pyx_t_5 == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 383, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_r = __pyx_t_5;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+
+  /* "pyv4l2/camera.pyx":384
+ * 
+ *     cpdef __u8 get_exposure(self):
+ *         return self.read_sensor_reg(0x3501, 0)             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef void set_exposure(self, __u8 exposure):
+ */
+  __pyx_r = ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->read_sensor_reg(__pyx_v_self, 0x3501, 0);
+  goto __pyx_L0;
+
+  /* "pyv4l2/camera.pyx":383
+ *         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+ * 
+ *     cpdef __u8 get_exposure(self):             # <<<<<<<<<<<<<<
+ *         return self.read_sensor_reg(0x3501, 0)
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_WriteUnraisable("pyv4l2.camera.Camera.get_exposure", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_15get_exposure(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_15get_exposure(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("get_exposure (wrapper)", 0);
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_14get_exposure(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14get_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("get_exposure", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From___u8(__pyx_f_6pyv4l2_6camera_6Camera_get_exposure(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 383, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pyv4l2.camera.Camera.get_exposure", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyv4l2/camera.pyx":386
+ *         return self.read_sensor_reg(0x3501, 0)
+ * 
+ *     cpdef void set_exposure(self, __u8 exposure):             # <<<<<<<<<<<<<<
+ *         # Max value is 31
+ *         self.write_sensor_reg(0x3501, exposure, 0x00)
+ */
+
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_17set_exposure(PyObject *__pyx_v_self, PyObject *__pyx_arg_exposure); /*proto*/
+static void __pyx_f_6pyv4l2_6camera_6Camera_set_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u8 __pyx_v_exposure, int __pyx_skip_dispatch) {
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  __Pyx_RefNannySetupContext("set_exposure", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_exposure); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 386, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_17set_exposure)) {
+        __pyx_t_3 = __Pyx_PyInt_From___u8(__pyx_v_exposure); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 386, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+          __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+          if (likely(__pyx_t_5)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+            __Pyx_INCREF(__pyx_t_5);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_4, function);
+          }
+        }
+        __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 386, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+
+  /* "pyv4l2/camera.pyx":388
+ *     cpdef void set_exposure(self, __u8 exposure):
+ *         # Max value is 31
+ *         self.write_sensor_reg(0x3501, exposure, 0x00)             # <<<<<<<<<<<<<<
+ *         self.write_sensor_reg(0x3501, exposure, 0x01)
+ * 
+ */
+  ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->write_sensor_reg(__pyx_v_self, 0x3501, __pyx_v_exposure, 0x00);
+
+  /* "pyv4l2/camera.pyx":389
+ *         # Max value is 31
+ *         self.write_sensor_reg(0x3501, exposure, 0x00)
+ *         self.write_sensor_reg(0x3501, exposure, 0x01)             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef void gain_off(self):
+ */
+  ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->write_sensor_reg(__pyx_v_self, 0x3501, __pyx_v_exposure, 0x01);
+
+  /* "pyv4l2/camera.pyx":386
+ *         return self.read_sensor_reg(0x3501, 0)
+ * 
+ *     cpdef void set_exposure(self, __u8 exposure):             # <<<<<<<<<<<<<<
+ *         # Max value is 31
+ *         self.write_sensor_reg(0x3501, exposure, 0x00)
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_WriteUnraisable("pyv4l2.camera.Camera.set_exposure", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_17set_exposure(PyObject *__pyx_v_self, PyObject *__pyx_arg_exposure); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_17set_exposure(PyObject *__pyx_v_self, PyObject *__pyx_arg_exposure) {
+  __u8 __pyx_v_exposure;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("set_exposure (wrapper)", 0);
+  assert(__pyx_arg_exposure); {
+    __pyx_v_exposure = __Pyx_PyInt_As___u8(__pyx_arg_exposure); if (unlikely((__pyx_v_exposure == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 386, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("pyv4l2.camera.Camera.set_exposure", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_16set_exposure(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self), ((__u8)__pyx_v_exposure));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_16set_exposure(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, __u8 __pyx_v_exposure) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("set_exposure", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6pyv4l2_6camera_6Camera_set_exposure(__pyx_v_self, __pyx_v_exposure, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 386, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pyv4l2.camera.Camera.set_exposure", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyv4l2/camera.pyx":391
+ *         self.write_sensor_reg(0x3501, exposure, 0x01)
+ * 
+ *     cpdef void gain_off(self):             # <<<<<<<<<<<<<<
+ *         self.write_sensor_reg(0x350B, 0x00, 0x00)
+ *         self.write_sensor_reg(0x350B, 0x00, 0x01)
+ */
+
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_19gain_off(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static void __pyx_f_6pyv4l2_6camera_6Camera_gain_off(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch) {
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __Pyx_RefNannySetupContext("gain_off", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_gain_off); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 391, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_19gain_off)) {
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          if (likely(__pyx_t_4)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+            __Pyx_INCREF(__pyx_t_4);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_3, function);
+          }
+        }
+        __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 391, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+
+  /* "pyv4l2/camera.pyx":392
+ * 
+ *     cpdef void gain_off(self):
+ *         self.write_sensor_reg(0x350B, 0x00, 0x00)             # <<<<<<<<<<<<<<
+ *         self.write_sensor_reg(0x350B, 0x00, 0x01)
+ * 
+ */
+  ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->write_sensor_reg(__pyx_v_self, 0x350B, 0x00, 0x00);
+
+  /* "pyv4l2/camera.pyx":393
+ *     cpdef void gain_off(self):
+ *         self.write_sensor_reg(0x350B, 0x00, 0x00)
+ *         self.write_sensor_reg(0x350B, 0x00, 0x01)             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef __u8 get_gain(self):
+ */
+  ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->write_sensor_reg(__pyx_v_self, 0x350B, 0x00, 0x01);
+
+  /* "pyv4l2/camera.pyx":391
+ *         self.write_sensor_reg(0x3501, exposure, 0x01)
+ * 
+ *     cpdef void gain_off(self):             # <<<<<<<<<<<<<<
+ *         self.write_sensor_reg(0x350B, 0x00, 0x00)
+ *         self.write_sensor_reg(0x350B, 0x00, 0x01)
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_WriteUnraisable("pyv4l2.camera.Camera.gain_off", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_19gain_off(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_19gain_off(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("gain_off (wrapper)", 0);
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_18gain_off(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_18gain_off(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("gain_off", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6pyv4l2_6camera_6Camera_gain_off(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 391, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pyv4l2.camera.Camera.gain_off", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyv4l2/camera.pyx":395
+ *         self.write_sensor_reg(0x350B, 0x00, 0x01)
+ * 
+ *     cpdef __u8 get_gain(self):             # <<<<<<<<<<<<<<
+ *         return self.read_sensor_reg(0x350B, 0x00)
+ * 
+ */
+
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_21get_gain(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static __u8 __pyx_f_6pyv4l2_6camera_6Camera_get_gain(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, int __pyx_skip_dispatch) {
+  __u8 __pyx_r;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __u8 __pyx_t_5;
+  __Pyx_RefNannySetupContext("get_gain", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_gain); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyv4l2_6camera_6Camera_21get_gain)) {
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          if (likely(__pyx_t_4)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+            __Pyx_INCREF(__pyx_t_4);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_3, function);
+          }
+        }
+        __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 395, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __pyx_t_5 = __Pyx_PyInt_As___u8(__pyx_t_2); if (unlikely((__pyx_t_5 == ((__u8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 395, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_r = __pyx_t_5;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+
+  /* "pyv4l2/camera.pyx":396
+ * 
+ *     cpdef __u8 get_gain(self):
+ *         return self.read_sensor_reg(0x350B, 0x00)             # <<<<<<<<<<<<<<
+ * 
+ *     def close(self):
+ */
+  __pyx_r = ((struct __pyx_vtabstruct_6pyv4l2_6camera_Camera *)__pyx_v_self->__pyx_vtab)->read_sensor_reg(__pyx_v_self, 0x350B, 0x00);
+  goto __pyx_L0;
+
+  /* "pyv4l2/camera.pyx":395
+ *         self.write_sensor_reg(0x350B, 0x00, 0x01)
+ * 
+ *     cpdef __u8 get_gain(self):             # <<<<<<<<<<<<<<
+ *         return self.read_sensor_reg(0x350B, 0x00)
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_WriteUnraisable("pyv4l2.camera.Camera.get_gain", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_21get_gain(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_21get_gain(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("get_gain (wrapper)", 0);
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_20get_gain(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_20get_gain(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("get_gain", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From___u8(__pyx_f_6pyv4l2_6camera_6Camera_get_gain(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pyv4l2.camera.Camera.get_gain", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyv4l2/camera.pyx":398
+ *         return self.read_sensor_reg(0x350B, 0x00)
  * 
  *     def close(self):             # <<<<<<<<<<<<<<
  *         xioctl(self.fd, VIDIOC_STREAMOFF, &self.buf.type)
@@ -6018,19 +7052,19 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_12write_ISPreg(struct __pyx_ob
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_15close(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_15close(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_23close(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_23close(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("close (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_14close(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_22close(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14close(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_22close(struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
   __u32 __pyx_v_i;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -6039,7 +7073,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14close(struct __pyx_obj_6pyv4
   __u32 __pyx_t_3;
   __Pyx_RefNannySetupContext("close", 0);
 
-  /* "pyv4l2/camera.pyx":317
+  /* "pyv4l2/camera.pyx":399
  * 
  *     def close(self):
  *         xioctl(self.fd, VIDIOC_STREAMOFF, &self.buf.type)             # <<<<<<<<<<<<<<
@@ -6048,7 +7082,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14close(struct __pyx_obj_6pyv4
  */
   (void)(__pyx_f_6pyv4l2_4v4l2_xioctl(__pyx_v_self->fd, VIDIOC_STREAMOFF, (&__pyx_v_self->buf.type)));
 
-  /* "pyv4l2/camera.pyx":319
+  /* "pyv4l2/camera.pyx":401
  *         xioctl(self.fd, VIDIOC_STREAMOFF, &self.buf.type)
  * 
  *         for i in range(self.buf_req.count):             # <<<<<<<<<<<<<<
@@ -6060,7 +7094,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14close(struct __pyx_obj_6pyv4
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pyv4l2/camera.pyx":320
+    /* "pyv4l2/camera.pyx":402
  * 
  *         for i in range(self.buf_req.count):
  *             v4l2_munmap(self.buffers[i].start, self.buffers[i].length)             # <<<<<<<<<<<<<<
@@ -6070,15 +7104,15 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_14close(struct __pyx_obj_6pyv4
     (void)(v4l2_munmap((__pyx_v_self->buffers[__pyx_v_i]).start, (__pyx_v_self->buffers[__pyx_v_i]).length));
   }
 
-  /* "pyv4l2/camera.pyx":322
+  /* "pyv4l2/camera.pyx":404
  *             v4l2_munmap(self.buffers[i].start, self.buffers[i].length)
  * 
  *         v4l2_close(self.fd)             # <<<<<<<<<<<<<<
  */
   (void)(v4l2_close(__pyx_v_self->fd));
 
-  /* "pyv4l2/camera.pyx":316
- * 
+  /* "pyv4l2/camera.pyx":398
+ *         return self.read_sensor_reg(0x350B, 0x00)
  * 
  *     def close(self):             # <<<<<<<<<<<<<<
  *         xioctl(self.fd, VIDIOC_STREAMOFF, &self.buf.type)
@@ -6251,19 +7285,19 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera_6height_2__set__(struct __pyx_obj_6p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_25__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_25__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_16__reduce_cython__(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_24__reduce_cython__(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_16__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_24__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -6305,19 +7339,19 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_16__reduce_cython__(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_27__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_6pyv4l2_6camera_6Camera_27__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_18__setstate_cython__(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_6pyv4l2_6camera_6Camera_26__setstate_cython__(((struct __pyx_obj_6pyv4l2_6camera_Camera *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_18__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_26__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6pyv4l2_6camera_Camera *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -6351,7 +7385,7 @@ static PyObject *__pyx_pf_6pyv4l2_6camera_6Camera_18__setstate_cython__(CYTHON_U
   return __pyx_r;
 }
 
-/* "pyv4l2/v4l2.pxd":155
+/* "pyv4l2/v4l2.pxd":157
  *     int v4l2_munmap(void *_start, size_t length)
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):             # <<<<<<<<<<<<<<
@@ -6367,7 +7401,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
   int __pyx_t_2;
   __Pyx_RefNannySetupContext("xioctl", 0);
 
-  /* "pyv4l2/v4l2.pxd":156
+  /* "pyv4l2/v4l2.pxd":158
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):
  *     cdef int r = v4l2_ioctl(fd, request, arg)             # <<<<<<<<<<<<<<
@@ -6376,7 +7410,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
  */
   __pyx_v_r = v4l2_ioctl(__pyx_v_fd, __pyx_v_request, __pyx_v_arg);
 
-  /* "pyv4l2/v4l2.pxd":157
+  /* "pyv4l2/v4l2.pxd":159
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):
  *     cdef int r = v4l2_ioctl(fd, request, arg)
  *     while -1 == r and EINTR == errno:             # <<<<<<<<<<<<<<
@@ -6395,7 +7429,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
     __pyx_L5_bool_binop_done:;
     if (!__pyx_t_1) break;
 
-    /* "pyv4l2/v4l2.pxd":158
+    /* "pyv4l2/v4l2.pxd":160
  *     cdef int r = v4l2_ioctl(fd, request, arg)
  *     while -1 == r and EINTR == errno:
  *         r = v4l2_ioctl(fd, request, arg)             # <<<<<<<<<<<<<<
@@ -6405,7 +7439,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
     __pyx_v_r = v4l2_ioctl(__pyx_v_fd, __pyx_v_request, __pyx_v_arg);
   }
 
-  /* "pyv4l2/v4l2.pxd":160
+  /* "pyv4l2/v4l2.pxd":162
  *         r = v4l2_ioctl(fd, request, arg)
  * 
  *     return r             # <<<<<<<<<<<<<<
@@ -6415,7 +7449,7 @@ static CYTHON_INLINE int __pyx_f_6pyv4l2_4v4l2_xioctl(int __pyx_v_fd, unsigned l
   __pyx_r = __pyx_v_r;
   goto __pyx_L0;
 
-  /* "pyv4l2/v4l2.pxd":155
+  /* "pyv4l2/v4l2.pxd":157
  *     int v4l2_munmap(void *_start, size_t length)
  * 
  * cdef inline int xioctl(int fd, unsigned long int request, void *arg):             # <<<<<<<<<<<<<<
@@ -8910,9 +9944,13 @@ static PyMethodDef __pyx_methods_6pyv4l2_6camera_Camera[] = {
   {"get_frame", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_9get_frame, METH_NOARGS, 0},
   {"read_ISPreg", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_11read_ISPreg, METH_O, 0},
   {"write_ISPreg", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyv4l2_6camera_6Camera_13write_ISPreg, METH_VARARGS|METH_KEYWORDS, 0},
-  {"close", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_15close, METH_NOARGS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_17__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_19__setstate_cython__, METH_O, 0},
+  {"get_exposure", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_15get_exposure, METH_NOARGS, 0},
+  {"set_exposure", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_17set_exposure, METH_O, 0},
+  {"gain_off", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_19gain_off, METH_NOARGS, 0},
+  {"get_gain", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_21get_gain, METH_NOARGS, 0},
+  {"close", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_23close, METH_NOARGS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_25__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyv4l2_6camera_6Camera_27__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
@@ -9071,9 +10109,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_frombuffer, __pyx_k_frombuffer, sizeof(__pyx_k_frombuffer), 0, 0, 1, 1},
+  {&__pyx_n_s_gain_off, __pyx_k_gain_off, sizeof(__pyx_k_gain_off), 0, 0, 1, 1},
   {&__pyx_n_s_get_control_value, __pyx_k_get_control_value, sizeof(__pyx_k_get_control_value), 0, 0, 1, 1},
   {&__pyx_n_s_get_controls, __pyx_k_get_controls, sizeof(__pyx_k_get_controls), 0, 0, 1, 1},
-  {&__pyx_n_s_get_frame, __pyx_k_get_frame, sizeof(__pyx_k_get_frame), 0, 0, 1, 1},
+  {&__pyx_n_s_get_exposure, __pyx_k_get_exposure, sizeof(__pyx_k_get_exposure), 0, 0, 1, 1},
+  {&__pyx_n_s_get_gain, __pyx_k_get_gain, sizeof(__pyx_k_get_gain), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_height, __pyx_k_height, sizeof(__pyx_k_height), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
@@ -9100,6 +10140,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
   {&__pyx_n_s_reshape, __pyx_k_reshape, sizeof(__pyx_k_reshape), 0, 0, 1, 1},
   {&__pyx_n_s_set_control_value, __pyx_k_set_control_value, sizeof(__pyx_k_set_control_value), 0, 0, 1, 1},
+  {&__pyx_n_s_set_exposure, __pyx_k_set_exposure, sizeof(__pyx_k_set_exposure), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
@@ -9113,8 +10154,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 95, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 96, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 201, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
@@ -9128,14 +10169,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pyv4l2/camera.pyx":200
+  /* "pyv4l2/camera.pyx":201
  *                 raise CameraError('Querying control')
  *             else:
  *                 raise AttributeError('Control is not supported')             # <<<<<<<<<<<<<<
  *         elif queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:
  *             raise AttributeError('Control is not supported')
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Control_is_not_supported); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Control_is_not_supported); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
@@ -9290,9 +10331,15 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtable_6pyv4l2_6camera_Camera.get_controls = (PyObject *(*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_get_controls;
   __pyx_vtable_6pyv4l2_6camera_Camera.set_control_value = (void (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_set_control_value;
   __pyx_vtable_6pyv4l2_6camera_Camera.get_control_value = (int (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_get_control_value;
-  __pyx_vtable_6pyv4l2_6camera_Camera.get_frame = (PyArrayObject *(*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_get_frame;
+  __pyx_vtable_6pyv4l2_6camera_Camera._get_frame = (PyArrayObject *(*)(struct __pyx_obj_6pyv4l2_6camera_Camera *))__pyx_f_6pyv4l2_6camera_6Camera__get_frame;
   __pyx_vtable_6pyv4l2_6camera_Camera.read_ISPreg = (__u8 (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u32, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_read_ISPreg;
   __pyx_vtable_6pyv4l2_6camera_Camera.write_ISPreg = (void (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u32, __u8, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_write_ISPreg;
+  __pyx_vtable_6pyv4l2_6camera_Camera.read_sensor_reg = (__u8 (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u16, __u8))__pyx_f_6pyv4l2_6camera_6Camera_read_sensor_reg;
+  __pyx_vtable_6pyv4l2_6camera_Camera.write_sensor_reg = (void (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u16, __u8, __u8))__pyx_f_6pyv4l2_6camera_6Camera_write_sensor_reg;
+  __pyx_vtable_6pyv4l2_6camera_Camera.get_exposure = (__u8 (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_get_exposure;
+  __pyx_vtable_6pyv4l2_6camera_Camera.set_exposure = (void (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, __u8, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_set_exposure;
+  __pyx_vtable_6pyv4l2_6camera_Camera.gain_off = (void (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_gain_off;
+  __pyx_vtable_6pyv4l2_6camera_Camera.get_gain = (__u8 (*)(struct __pyx_obj_6pyv4l2_6camera_Camera *, int __pyx_skip_dispatch))__pyx_f_6pyv4l2_6camera_6Camera_get_gain;
   if (PyType_Ready(&__pyx_type_6pyv4l2_6camera_Camera) < 0) __PYX_ERR(0, 30, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_6pyv4l2_6camera_Camera.tp_print = 0;
@@ -11368,6 +12415,37 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value)
         int one = 1; int little = (int)*(unsigned char *)&one;
         unsigned char *bytes = (unsigned char *)&value;
         return _PyLong_FromByteArray(bytes, sizeof(unsigned int),
+                                     little, !is_unsigned);
+    }
+}
+
+/* CIntToPy */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_long(unsigned long value) {
+    const unsigned long neg_one = (unsigned long) ((unsigned long) 0 - (unsigned long) 1), const_zero = (unsigned long) 0;
+    const int is_unsigned = neg_one > const_zero;
+    if (is_unsigned) {
+        if (sizeof(unsigned long) < sizeof(long)) {
+            return PyInt_FromLong((long) value);
+        } else if (sizeof(unsigned long) <= sizeof(unsigned long)) {
+            return PyLong_FromUnsignedLong((unsigned long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(unsigned long) <= sizeof(unsigned PY_LONG_LONG)) {
+            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+#endif
+        }
+    } else {
+        if (sizeof(unsigned long) <= sizeof(long)) {
+            return PyInt_FromLong((long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(unsigned long) <= sizeof(PY_LONG_LONG)) {
+            return PyLong_FromLongLong((PY_LONG_LONG) value);
+#endif
+        }
+    }
+    {
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        unsigned char *bytes = (unsigned char *)&value;
+        return _PyLong_FromByteArray(bytes, sizeof(unsigned long),
                                      little, !is_unsigned);
     }
 }

@@ -45,6 +45,7 @@ cdef class Camera:
     cdef buffer_info *buffers
 
     cdef timeval tv
+    cdef unsigned long timestamp
 
     def __cinit__(self, device_path,
                   unsigned int width=1280, unsigned int height=480):
@@ -231,10 +232,11 @@ cdef class Camera:
             else:
                 raise CameraError('Getting control')
 
-    cpdef np.ndarray[np.uint8_t, ndim=2] get_frame(self):
+    cdef np.ndarray[np.uint8_t, ndim=2] _get_frame(self):
         FD_ZERO(&self.fds)
         FD_SET(self.fd, &self.fds)
-        cdef np.ndarray frame = np.zeros((self.height, self.width), dtype=np.uint8)
+        cdef np.ndarray frame
+        cdef int r
 
         self.tv.tv_sec = 2
 
@@ -258,6 +260,7 @@ cdef class Camera:
             raise CameraError('Retrieving frame failed')
 
         self.frame_data = <unsigned char *>self.buffers[self.buf.index].start
+        self.timestamp = self.buf.timestamp.tv_sec * 1000000 + self.buf.timestamp.tv_usec
         
         if -1 == xioctl(self.fd, VIDIOC_QBUF, &self.buf):
             raise CameraError('Exchanging buffer with device failed')
@@ -265,6 +268,12 @@ cdef class Camera:
         frame = np.frombuffer(self.frame_data[:self.frame_size], dtype=np.uint8)
         return frame.reshape((self.height, self.width))
 
+    def get_frame(self):
+        frame = np.zeros((self.height, self.width), dtype=np.uint8)
+        frame = self._get_frame()
+        timestamp = self.timestamp
+        return frame, timestamp
+    
     cpdef __u8 read_ISPreg(self, __u32 isp_add):
         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
 
@@ -292,26 +301,99 @@ cdef class Camera:
 
     cpdef void write_ISPreg(self, __u32 isp_add, __u8 isp_val):
         xu_query.query = UVC_SET_CUR # UVC_SET_CUR
-        query_value[0] = 0x50;
-        query_value[1] = 0xa2;
-        query_value[2] = 0x6c;
-        query_value[3] = 0x04;
-        query_value[4] = 0x01;
+
+        query_value[0] = 0x50
+        query_value[1] = 0xa2
+        query_value[2] = 0x6c
+        query_value[3] = 0x04
+        query_value[4] = 0x01
         #register address
-        query_value[5] = isp_add>>24;
-        query_value[6] = isp_add>>16;
-        query_value[7] = isp_add>>8;
-        query_value[8] = isp_add&0xff;
+        query_value[5] = isp_add>>24
+        query_value[6] = isp_add>>16
+        query_value[7] = isp_add>>8
+        query_value[8] = isp_add&0xff
 
-        query_value[9] = 0x90;
-        query_value[10] = 0x01;
-        query_value[11] = 0x00;
-        query_value[12] = 0x01;
+        query_value[9] = 0x90
+        query_value[10] = 0x01
+        query_value[11] = 0x00
+        query_value[12] = 0x01
 
-        query_value[16] = isp_val;
+        query_value[16] = isp_val
 
-        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query));
-    
+        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+
+    cdef __u8 read_sensor_reg(self, __u16 sensor_add, __u8 i2c):
+        xu_query.query = UVC_SET_CUR
+
+        query_value[0] = 0x51
+
+        if(i2c):
+            query_value[1] = 0xa3
+        else:
+            query_value[1] = 0xa5
+
+        query_value[2] = 0xc0
+        query_value[3] = 0x02
+        query_value[4] = 0x01
+        query_value[5] = 0x00
+        query_value[6] = 0x00
+        query_value[7] = sensor_add>>8
+        query_value[8] = sensor_add&0xff
+        query_value[9] = 0x90
+        query_value[10] = 0x01
+        query_value[11] = 0x00
+        query_value[12] = 0x01
+
+        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+        sleep(1)
+
+        xu_query.query = UVC_GET_CUR
+        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+        return query_value[17]
+
+    cdef void write_sensor_reg(self, __u16 sensor_add, __u8 sensor_val, __u8 i2c):
+        xu_query.query = UVC_SET_CUR
+
+        query_value[0] = 0x50
+
+        if(i2c):
+            query_value[1] = 0xa3
+        else:
+            query_value[1] = 0xa5
+
+        query_value[2] = 0xc0
+        query_value[3] = 0x02
+        query_value[4] = 0x01
+
+        # register address
+        query_value[5] = 0x00
+        query_value[6] = 0x00
+        query_value[7] = sensor_add>>8
+        query_value[8] = sensor_add&0xff
+
+        query_value[9] = 0x90
+        query_value[10] = 0x01
+        query_value[11] = 0x00
+        query_value[12] = 0x01
+
+        query_value[16] = sensor_val
+
+        SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+
+    cpdef __u8 get_exposure(self):
+        return self.read_sensor_reg(0x3501, 0)
+
+    cpdef void set_exposure(self, __u8 exposure):
+        # Max value is 31
+        self.write_sensor_reg(0x3501, exposure, 0x00)
+        self.write_sensor_reg(0x3501, exposure, 0x01)
+
+    cpdef void gain_off(self):
+        self.write_sensor_reg(0x350B, 0x00, 0x00)
+        self.write_sensor_reg(0x350B, 0x00, 0x01)
+
+    cpdef __u8 get_gain(self):
+        return self.read_sensor_reg(0x350B, 0x00)
 
     def close(self):
         xioctl(self.fd, VIDIOC_STREAMOFF, &self.buf.type)

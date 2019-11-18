@@ -5,7 +5,8 @@ from pyv4l2.camera import Camera
 videocap = Camera('/dev/video0')
 
 for i in range(500):
-    frame = videocap.get_frame()
+    frame, _ = videocap.get_frame()
+
     cv2.imshow('frame', frame)
     cv2.waitKey(1)
 
@@ -22,7 +23,9 @@ test = videocap.read_ISPreg(0x80181033)
 print(test)
 
 for i in range(500):
-    frame = videocap.get_frame()
+    frame, _ = videocap.get_frame()
+    if i > 250:
+        videocap.set_exposure(32)
     cv2.imshow('frame', frame)
     cv2.waitKey(1)
 
