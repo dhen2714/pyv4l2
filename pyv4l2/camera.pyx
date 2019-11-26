@@ -92,6 +92,15 @@ cdef class Camera:
         if -1 == xioctl(self.fd, VIDIOC_STREAMON, &self.buf.type):
             raise CameraError('Starting capture failed')
 
+        print('Initializing...')
+        # Registers need to be read before they can be changed.
+        self.read_ISPreg(0x80181033)
+        self.read_ISPreg(0x80181833)
+        self.write_ISPreg(0x80181033, 0)
+        self.write_ISPreg(0x80181833, 0)
+        self.get_gain()
+        self.set_gain(0x00)
+
     cdef inline int initialize_buffers(self) except -1:
         for buf_index in range(self.buf_req.count):
             memset(&self.buf, 0, sizeof(self.buf))
@@ -388,11 +397,14 @@ cdef class Camera:
         self.write_sensor_reg(0x3501, exposure, 0x00)
         self.write_sensor_reg(0x3501, exposure, 0x01)
 
-    cpdef void gain_off(self):
-        self.write_sensor_reg(0x350B, 0x00, 0x00)
-        self.write_sensor_reg(0x350B, 0x00, 0x01)
+    cpdef void set_gain(self, __u8 gain):
+        # Default is 248 or 0xf8
+        self.write_sensor_reg(0x350B, gain, 0x00)
+        self.write_sensor_reg(0x350B, gain, 0x01)
 
     cpdef __u8 get_gain(self):
+        self.read_sensor_reg(0x350B, 0x01)
+        self.read_sensor_reg(0x350B, 0x00)
         return self.read_sensor_reg(0x350B, 0x00)
 
     def close(self):
