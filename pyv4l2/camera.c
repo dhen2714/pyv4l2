@@ -2583,7 +2583,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
  *         self.frame_data = <unsigned char *>malloc(self.frame_size)
  * 
  *         memset(&self.buf_req, 0, sizeof(self.buf_req))             # <<<<<<<<<<<<<<
- *         self.buf_req.count = 4
+ *         self.buf_req.count = 1
  *         self.buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  */
   (void)(memset((&__pyx_v_self->buf_req), 0, (sizeof(__pyx_v_self->buf_req))));
@@ -2591,15 +2591,15 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   /* "pyv4l2/camera.pyx":79
  * 
  *         memset(&self.buf_req, 0, sizeof(self.buf_req))
- *         self.buf_req.count = 4             # <<<<<<<<<<<<<<
+ *         self.buf_req.count = 1             # <<<<<<<<<<<<<<
  *         self.buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *         self.buf_req.memory = V4L2_MEMORY_MMAP
  */
-  __pyx_v_self->buf_req.count = 4;
+  __pyx_v_self->buf_req.count = 1;
 
   /* "pyv4l2/camera.pyx":80
  *         memset(&self.buf_req, 0, sizeof(self.buf_req))
- *         self.buf_req.count = 4
+ *         self.buf_req.count = 1
  *         self.buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE             # <<<<<<<<<<<<<<
  *         self.buf_req.memory = V4L2_MEMORY_MMAP
  * 
@@ -2607,7 +2607,7 @@ static int __pyx_pf_6pyv4l2_6camera_6Camera___cinit__(struct __pyx_obj_6pyv4l2_6
   __pyx_v_self->buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
   /* "pyv4l2/camera.pyx":81
- *         self.buf_req.count = 4
+ *         self.buf_req.count = 1
  *         self.buf_req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
  *         self.buf_req.memory = V4L2_MEMORY_MMAP             # <<<<<<<<<<<<<<
  * 
