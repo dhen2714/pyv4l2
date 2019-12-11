@@ -5,7 +5,7 @@
     "distutils": {
         "depends": [],
         "include_dirs": [
-            "/home/motion/anaconda3/envs/v4l2/lib/python3.7/site-packages/numpy/core/include"
+            "/home/motion/anaconda3/envs/test/lib/python3.7/site-packages/numpy/core/include"
         ],
         "libraries": [
             "v4l2"

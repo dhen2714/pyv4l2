@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-from distutils.core import setup
-from distutils.extension import Extension
+# from distutils.core import setup
+# from distutils.extension import Extension
+# from Cython.Build import cythonize
+# import numpy
+from setuptools import setup, Extension, find_packages
 from Cython.Build import cythonize
 import numpy
+
 
 extensions = [
     Extension('pyv4l2.camera', ['pyv4l2/camera.pyx'],
         include_dirs=[numpy.get_include(), 'src'],
         libraries=['v4l2']),
-    # Everything but primes.pyx is included here.
     Extension('pyv4l2.controls', ['pyv4l2/controls.pyx'],
         include_dirs=[numpy.get_include()],
-        libraries=['v4l2'])
+        libraries=['v4l2']),
+    Extension('pyv4l2.exceptions', ['pyv4l2/exceptions.py'])
 ]
 
 setup(
