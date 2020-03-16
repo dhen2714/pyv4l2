@@ -1,43 +1,16 @@
-import cv2
+"""
+Example code for pyv4l2 camera.
+"""
 import numpy as np
 from pyv4l2.camera import Camera
-from capgui.gui import CapApp
-# import thread
 
-ca = CapApp('capgui')
-# ca.root.mainloop()
 
-# videocap = Camera('/dev/video0')
-# gain = videocap.get_gain()
-# print(gain)
-# videocap.set_gain(0)
-# gain = videocap.get_gain()
-# print(gain)
+videocap = Camera('/dev/video0')
 
 
 for i in range(500):
-    frame, _ = ca.vc.get_frame()
+    # get_frame() method returns frame as a numpy array and timestamp
+    frame, _ = videocap.get_frame()
+    print(np.mean(frame))
 
-    cv2.imshow('frame', frame)
-    cv2.waitKey(1)
-
-# cv2.destroyAllWindows()
-# print('Reading reg')
-# test = videocap.read_ISPreg(0x80181033)
-# print(test)
-# print('Attemping write:')
-# videocap.write_ISPreg(0x80181033, 0)
-# videocap.write_ISPreg(0x80181833, 0);
-# print('Written')
-# print('Reading')
-# test = videocap.read_ISPreg(0x80181033)
-# print(test)
-
-# for i in range(500):
-#     frame, _ = videocap.get_frame()
-#     if i > 250:
-#         videocap.set_exposure(32)
-#     cv2.imshow('frame', frame)
-#     cv2.waitKey(1)
-
-# videocap.close()
+videocap.close()
