@@ -28,6 +28,9 @@ cdef extern from 'linux/videodev2.h':
     enum: V4L2_CID_PRIVATE_BASE
     enum: V4L2_CTRL_FLAG_DISABLED
 
+    enum: VIDIOC_S_PARM
+    enum: VIDIOC_G_PARM
+
     enum: V4L2_CTRL_FLAG_DISABLED
     enum: V4L2_CTRL_FLAG_GRABBED
     enum: V4L2_CTRL_FLAG_READ_ONLY
@@ -53,6 +56,7 @@ cdef extern from 'linux/videodev2.h':
     enum: V4L2_CID_GAMMA
     enum: V4L2_CID_WHITENESS
     enum: V4L2_CID_EXPOSURE
+    enum: V4L2_CID_EXPOSURE_ABSOLUTE
     enum: V4L2_CID_AUTOGAIN
     enum: V4L2_CID_GAIN
     enum: V4L2_CID_HFLIP
@@ -65,6 +69,8 @@ cdef extern from 'linux/videodev2.h':
     enum: V4L2_CID_CHROMA_AGC
     enum: V4L2_CID_COLOR_KILLER 
     enum: V4L2_CID_COLORFX
+
+    enum: V4L2_BUF_TYPE_VIDEO_CAPTURE
 
     cdef struct v4l2_pix_format:
         __u32   width
@@ -139,9 +145,48 @@ cdef extern from 'linux/videodev2.h':
         __u32 id
         __s32 value
 
+    cdef struct v4l2_fract:
+        __u32 numerator
+        __u32 denominator
+
+    cdef struct v4l2_captureparm:
+        __u32 capability
+        __u32 capturemode
+        v4l2_fract timeperframe
+        __u32 extendedmode
+        __u32 readbuffers
+        __u32 reserved[4]
+
+    cdef struct v4l2_outputparm:
+        __u32 capability
+        __u32 outputmode
+        v4l2_fract timeperframe
+        __u32 extendedmode
+        __u32 writebuffers
+        __u32 reserved[4]
+
+    cdef union parm:
+        v4l2_captureparm capture
+        v4l2_outputparm output
+        __u8 raw_data[200]
+
+    cdef struct v4l2_streamparm:
+        __u32 type
+        parm parm
+
+    cdef struct v4l2_frmivalenum:
+        __u32 index
+        __u32 pixel_format
+        __u32 width
+        __u32 height
+        __u32 type
+        
+
+
 cdef extern from 'libv4l2.h':
+    enum: V4L2_PIX_FMT_YUYV
     enum: V4L2_PIX_FMT_GREY
-    enum: V4L2_BUF_TYPE_VIDEO_CAPTURE
+    # enum: V4L2_BUF_TYPE_VIDEO_CAPTURE
     enum: V4L2_MEMORY_MMAP
     enum: V4L2_FIELD_ANY
 
