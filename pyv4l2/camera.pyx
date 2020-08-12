@@ -44,10 +44,13 @@ cdef class Camera:
     cdef v4l2_buffer buf
     cdef buffer_info *buffers
 
+    # For fps
+    cdef v4l2_streamparm parm
+
     cdef timeval tv
     cdef unsigned long timestamp
 
-    def __cinit__(self, device_path, const int pixelformat=V4L2_PIX_FMT_GREY,
+    def __cinit__(self, device_path, const int fps=100,
                   unsigned int width=1280, unsigned int height=480):
         device_path = device_path.encode()
 
@@ -63,11 +66,18 @@ cdef class Camera:
 
         self.fmt.fmt.pix.width = width
         self.fmt.fmt.pix.height = height
-        self.fmt.fmt.pix.pixelformat = pixelformat
+        self.fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY
         self.fmt.fmt.pix.field = V4L2_FIELD_ANY
 
         if -1 == xioctl(self.fd, VIDIOC_S_FMT, &self.fmt):
             raise CameraError('Setting format failed')
+
+        self.parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
+        self.parm.parm.capture.timeperframe.numerator = 1
+        self.parm.parm.capture.timeperframe.denominator = fps
+
+        if -1 == xioctl(self.fd, VIDIOC_S_PARM, &self.parm):
+            raise CameraError('Setting fps failed')
 
         self.width = width
         self.height = height
