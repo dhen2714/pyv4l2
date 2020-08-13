@@ -39,6 +39,7 @@ cdef class Camera:
 
     cdef unsigned int frame_size
     cdef unsigned char *frame_data
+    cdef unsigned int fps
 
     cdef v4l2_requestbuffers buf_req
     cdef v4l2_buffer buf
@@ -72,9 +73,10 @@ cdef class Camera:
         if -1 == xioctl(self.fd, VIDIOC_S_FMT, &self.fmt):
             raise CameraError('Setting format failed')
 
+        self.fps = fps
         self.parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE
         self.parm.parm.capture.timeperframe.numerator = 1
-        self.parm.parm.capture.timeperframe.denominator = fps
+        self.parm.parm.capture.timeperframe.denominator = self.fps
 
         if -1 == xioctl(self.fd, VIDIOC_S_PARM, &self.parm):
             raise CameraError('Setting fps failed')
@@ -398,6 +400,18 @@ cdef class Camera:
         query_value[16] = sensor_val
 
         SAFE_IOCTL(ioctl(self.fd, UVCIOC_CTRL_QUERY, &xu_query))
+
+    cpdef void set_aec(self, __u8 val):
+        self.read_ISPreg(0x80181033)
+        self.read_ISPreg(0x80181833)
+        self.write_ISPreg(0x80181033, val)
+        self.write_ISPreg(0x80181833, val)
+
+    cpdef __u8 get_aec(self, flag=0):
+        if flag:
+            return self.read_ISPreg(0x80181033)
+        else:
+            return self.read_ISPreg(0x80181833)
 
     cpdef __u8 get_exposure(self):
         return self.read_sensor_reg(0x3501, 0)
